@@ -1,0 +1,24 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Environment variables
+*.env
+
+# Build output
+dist/
+
+# Coverage directory used by testing tools
+coverage/
+
+# macOS system files
+.DS_Store
+
+# Visual Studio Code settings
+.vscode/
+
+# npm debug logs
+npm-debug.log*
+
