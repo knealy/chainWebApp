@@ -180,7 +180,9 @@ label {
 
 /* Styling for the new chain reaction modal */
 .modal {
-    display: none; /* Hidden by default */
+    display: flex; /* Use flex to center content */
+    justify-content: center;
+    align-items: center;
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -202,12 +204,15 @@ label {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.modal-content input[type="text"] {
+.modal-content input[type="text"],
+.modal-content input[type="password"],
+.modal-content select {
     width: 100%;
     padding: 0.8rem;
     margin: 0.5rem 0;
     border: 1px solid #ccc;
     border-radius: 4px;
+    box-sizing: border-box; /* Ensure padding doesn't affect total width */
 }
 
 .modal-content button {
@@ -219,6 +224,7 @@ label {
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    transition: background-color 0.3s ease; /* Smooth transition for hover */
 }
 
 .modal-content button:hover {
