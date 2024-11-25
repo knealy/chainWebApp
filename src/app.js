@@ -246,8 +246,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add new API connection handling
     async function handleNewApiConnection() {
+        const apiName = prompt('Enter a name for this API connection:');
+        if (!apiName) return;
+
+        const apiUrl = prompt('Enter the API URL:');
+        if (!apiUrl) return;
+
+        const apiKey = prompt('Enter the API key:');
+        if (!apiKey) return;
+
+        const webhookUrl = prompt('Enter webhook URL (optional):');
+
+        try {
+            const response = await makeRequest('/connect-api', {
+                apiName,
+                apiUrl,
+                apiKey,
+                webhookUrl
+            });
+
+            if (response.success) {
+                alert('API connected successfully!');
+                updateApiDropdown();
+            } else {
+                alert('Failed to connect API: ' + response.message);
+            }
+        } catch (error) {
+            console.error('Error connecting API:', error);
+            alert('An error occurred while connecting to the API.');
+        }
+
         if (apiModal) {
-            apiModal.style.display = 'block';
+            apiModal.style.display = 'none';
         }
     }
 
