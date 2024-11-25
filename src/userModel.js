@@ -1,5 +1,7 @@
 // src/userModel.js
 
+const bcrypt = require('bcrypt');
+
 class UserModel {
     constructor() {
         // Simulated database using an array
@@ -15,8 +17,11 @@ username);
             throw new Error('User already exists');
         }
 
+        // Hash the password before storing
+        const hashedPassword = bcrypt.hashSync(password, 10);
+
         // Add new user to the simulated database
-        const newUser = { username, email, password };
+        const newUser = { username, email, password: hashedPassword };
         this.users.push(newUser);
         return newUser;
     }
@@ -28,4 +33,3 @@ username);
 }
 
 module.exports = new UserModel();
-

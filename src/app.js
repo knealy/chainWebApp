@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await makeRequest('/login', { username, password });
             if (response.success) {
                 alert('Login successful!');
-                window.location.href = '/main';
+                window.location.href = '/main.html'; // Ensure correct redirection
             } else {
                 alert('Login failed: ' + response.message);
             }

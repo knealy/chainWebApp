@@ -118,19 +118,24 @@ app.get('/api-events/:apiId', (req, res) => {
     });
 });
 
-// List all connected APIs
-app.get('/api-connections', (req, res) => {
-    const connections = apiConnections.map(({ id, name, status }) => ({
-        id, name, status
-    }));
-    
-    res.json({ 
-        success: true, 
-        connections 
-    });
 });
 
-// Other existing routes remain the same...
+// Endpoint to handle login requests
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = users.find(u => u.username === username);
+
+    if (!user) {
+        return res.json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (match) {
+        res.json({ success: true, message: 'Login successful' });
+    } else {
+        res.json({ success: false, message: 'Invalid credentials' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
