@@ -1,8 +1,10 @@
 // server.js
 const express = require('express');
 const path = require('path');
+const UserModel = require('./src/userModel');
 const bcrypt = require('bcrypt');
 const axios = require('axios'); // Add axios for making API calls
+const favicon = require('serve-favicon');
 
 const app = express();
 app.use(express.json());
@@ -14,6 +16,9 @@ const apiConnections = [];
 
 const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'src')));
+
+// Serve the favicon
+app.use(favicon(path.join(__dirname, 'src', 'favicon.ico')));
 
 // Validate and test API connection
 async function validateApiConnection(apiUrl, apiKey) {
@@ -30,6 +35,40 @@ async function validateApiConnection(apiUrl, apiKey) {
         return { success: false, error: error.message };
     }
 }
+
+
+// Registration endpoint
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.json({ success: false, message: 'All fields are required' });
+    }
+
+    try {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Add user to the database
+        const newUser = UserModel.addUser(username, email, hashedPassword);
+
+        res.json({ success: true, message: 'User registered successfully' });
+    } catch (error) {
+        console.error('Error during registration:', error);
+        res.json({ success: false, message: 'Registration failed: ' + error.message });
+    }
+});
+
+// Route to handle login requests
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = users.find(u => u.username === username);
+    if (user && await bcrypt.compare(password, user.password)) {
+        res.json({ success: true, message: 'Login successful!', redirectUrl: '/account' });
+    } else {
+        res.json({ success: false, message: 'Invalid credentials' });
+    }
+});
 
 // Add new endpoint to handle API connections
 app.post('/connect-api', async (req, res) => {
