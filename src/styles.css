@@ -1,31 +1,134 @@
 /* Basic reset and styling for the body */
 body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    line-height: 1.6;
 }
 
-/* Styling for the login container */
-.login-container {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
+.account-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.saved-chains {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.saved-chains div {
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.new-chain-button {
+    display: block;
+    margin: 1rem auto;
+    padding: 1rem;
+    background-color: #28a745;
+    color: white;
     text-align: center;
-    max-width: 90%;
-    margin: 20px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.new-chain-button:hover {
+    background-color: #218838;
+}
+
+.main-functionality {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-builder {
+    margin: 1rem 0;
+}
+
+.workflow-builder .add-api-event {
+    padding: 0.8rem 1rem;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.workflow-builder .add-api-event:hover {
+    background-color: #117a8b;
+}
+
+.workflow-builder .logic-fields {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.workflow-builder .logic-fields input {
+    width: calc(50% - 1rem);
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.save-button {
+    display: block;
+    margin: 1rem auto;
+    padding: 0.8rem 2rem;
+    background-color: #ffc107;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.save-button:hover {
+    background-color: #e0a800;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-1 {
+    margin-top: 1rem;
+}
+
+.mb-1 {
+    margin-bottom: 1rem;
+}
+
+/* Styling for the login and registration containers */
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Styling for the form elements */
-h2 {
-    color: #333;
-    margin-bottom: 20px;
+h1, h2, h3 {
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 1rem;
 }
 
 form {
@@ -43,33 +146,27 @@ label {
     font-weight: bold;
 }
 
-input[type="text"],
-input[type="password"] {
+.login-container input[type="text"],
+.login-container input[type="password"] {
     width: 100%;
-    padding: 8px;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
 }
 
-input[type="text"]:hover,
-input[type="password"]:hover {
-    border-color: #007bff;
-}
-
-button {
-    padding: 10px;
-    background-color: #007bff;
+.login-container button {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #007BFF;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
+    font-size: 1rem;
 }
 
-button:hover {
+.login-container button:hover {
     background-color: #0056b3;
 }
 
@@ -79,4 +176,67 @@ button:hover {
     margin-top: -10px;
     margin-bottom: 10px;
     text-align: left;
+}
+
+/* Styling for the new chain reaction modal */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content input[type="text"] {
+    width: 100%;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-content button {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.modal-content button:hover {
+    background-color: #218838;
+}
+
+/* Style for the close button in the modal */
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }

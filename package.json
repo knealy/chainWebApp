@@ -1,16 +1,16 @@
 {
   "name": "web-app",
   "version": "1.0.0",
-  "description": "A web application for managing API keys and creating 
-dynamic functions.",
+  "description": "A web application for managing API keys and creating dynamic functions.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
+    "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
     "express": "^4.18.2"
   },
   "author": "",
   "license": "ISC"
 }
-
