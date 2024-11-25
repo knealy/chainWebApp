@@ -13,12 +13,11 @@
     </header>
     <main class="main-functionality">
         <section class="workflow-builder">
-            <button class="add-api-event">Add API Event</button>
             <div class="api-integration-container">
                 <button class="add-api-button">Add New API</button>
 
                 <!-- Modal Structure for Adding New API -->
-<!--                 <div id="apiModal" class="modal">
+                 <div id="apiModal" class="modal", style="display: none;">
                     <div class="modal-content">
                         <span class="close-button">&times;</span>
                         <h2>Connect API</h2>
@@ -39,58 +38,17 @@
                                 <label for="webhookUrl">Webhook URL (optional):</label>
                                 <input type="text" id="webhookUrl" name="webhookUrl">
                             </div>
-                            <button type="submit">Connect</button>
-                        </form>
-                    </div>
-                </div> -->
-                <div id="apiModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-button">&times;</span>
-                        <h2>Connect API and Select Action</h2>
-                        <form id="apiForm">
-                            <label for="apiUrl">API URL:</label>
-                            <input type="text" id="apiUrl" name="apiUrl" required>
-                            
-                            <label for="apiAction">Select Action:</label>
-                            <select id="apiAction" name="apiAction" required>
-                                <option value="get">GET</option>
-                                <option value="post">POST</option>
-                                <option value="put">PUT</option>
-                                <option value="delete">DELETE</option>
-                            </select>
-                            
-                            <button type="submit">Connect</button>
+                            <button type="submit" id="submit-api-connection" class="submit-api-button">Connect</button>
+                            <button id="choose-api-action" class="choose-action-button">Choose Action</button>
                         </form>
                     </div>
                 </div>
-                    <div class="form-group">
-                        <label for="api-select">Select API:</label>
-                        <select id="api-select" required>
-                            <option value="">Select an API</option>
-                        </select>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="event-select">Select Event:</label>
-                        <select id="event-select" required>
-                            <option value="">Select an Event</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="action-select">Select Action:</label>
-                        <select id="action-select" required>
-                            <option value="">Select an Action</option>
-                        </select>
-                    </div>
-
-                    <button type="submit">Create Chain Reaction</button>
-                </form>
-            </div>
             <!-- Additional workflow components can be added here -->
         </section>
         <button class="save-button">Save Workflow</button>
     </main>
+  <script src="app.js"></script>
 </body>
 </html>
 

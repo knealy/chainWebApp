@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiForm = document.getElementById('apiForm');
     const addApiButton = document.querySelector('.add-api-button');
     const newChainButton = document.querySelector('.new-chain-button');
-
+    const addApiEventButton = document.querySelector('.add-api-event');
+    
     // Add event listeners only if elements exist
     if (closeButton && apiModal) {
         closeButton.addEventListener('click', () => {
@@ -61,9 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (apiForm) {
-        apiForm.addEventListener('submit', handleApiFormSubmit);
+        apiForm.addEventListener('submit-api-connection', handleApiFormSubmit);
     }
 
+    if (addApiEventButton) {
+        addApiEventButton.addEventListener('choose-api-action', handleApiChainEvent);
+    }
 
     // Standard request handler with error handling
     async function makeRequest(url, data) {
@@ -244,10 +248,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return [...dynamicFunctions]; // Return a copy to prevent direct manipulation
     }
 
+
         // Add new API connection handling
     async function handleNewApiConnection() {
+        const apiName = prompt('Enter a name for this API connection:');
+        if (!apiName) return;
+
+        const apiUrl = prompt('Enter the API URL:');
+        if (!apiUrl) return;
+
+        const apiKey = prompt('Enter the API key:');
+        if (!apiKey) return;
+
+        const webhookUrl = prompt('Enter webhook URL (optional):');
+
+        try {
+            const response = await makeRequest('/connect-api', {
+                apiName,
+                apiUrl,
+                apiKey,
+                webhookUrl
+            });
+
+            if (response.success) {
+                alert('API connected successfully!');
+                updateApiDropdown();
+            } else {
+                alert('Failed to connect API: ' + response.message);
+            }
+        } catch (error) {
+            console.error('Error connecting API:', error);
+            alert('An error occurred while connecting to the API.');
+        }
+
         if (apiModal) {
-            apiModal.style.display = 'block';
+            apiModal.style.display = 'none';
         }
     }
 
@@ -348,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Update handleApiFormSubmit
-    async function handleApiFormSubmit(event) {
+    async function handleApiChainEvent(event) {
         event.preventDefault();
         const apiId = document.getElementById('api-select')?.value;
         const eventId = document.getElementById('event-select')?.value;
