@@ -59,16 +59,18 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
 // Route to handle login requests
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const user = users.find(u => u.username === username);
+    const user = UserModel.getUserByUsername(username); // Use UserModel to get the user
     if (user && await bcrypt.compare(password, user.password)) {
-        res.json({ success: true, message: 'Login successful!', redirectUrl: '/account' });
+        res.json({ success: true, message: 'Login successful!', redirectUrl: '/main' });
     } else {
         res.json({ success: false, message: 'Invalid credentials' });
     }
 });
+
 
 // Add new endpoint to handle API connections
 app.post('/connect-api', async (req, res) => {

@@ -11,8 +11,7 @@ class UserModel {
     // Method to add a new user
     addUser(username, email, password) {
         // Check if the user already exists
-        const existingUser = this.users.find(user => user.username === 
-username);
+        const existingUser = this.users.find(user => user.username === username);
         if (existingUser) {
             throw new Error('User already exists');
         }

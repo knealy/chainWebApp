@@ -16,8 +16,53 @@
             <button class="add-api-event">Add API Event</button>
             <div class="api-integration-container">
                 <button class="add-api-button">Add New API</button>
-                
-                <form id="apiForm" class="api-form">
+
+                <!-- Modal Structure for Adding New API -->
+<!--                 <div id="apiModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-button">&times;</span>
+                        <h2>Connect API</h2>
+                        <form id="apiForm" class="api-form">
+                            <div class="form-group">
+                                <label for="apiName">API Name:</label>
+                                <input type="text" id="apiName" name="apiName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="apiUrl">API URL:</label>
+                                <input type="text" id="apiUrl" name="apiUrl" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="apiKey">API Key:</label>
+                                <input type="text" id="apiKey" name="apiKey" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="webhookUrl">Webhook URL (optional):</label>
+                                <input type="text" id="webhookUrl" name="webhookUrl">
+                            </div>
+                            <button type="submit">Connect</button>
+                        </form>
+                    </div>
+                </div> -->
+                <div id="apiModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-button">&times;</span>
+                        <h2>Connect API and Select Action</h2>
+                        <form id="apiForm">
+                            <label for="apiUrl">API URL:</label>
+                            <input type="text" id="apiUrl" name="apiUrl" required>
+                            
+                            <label for="apiAction">Select Action:</label>
+                            <select id="apiAction" name="apiAction" required>
+                                <option value="get">GET</option>
+                                <option value="post">POST</option>
+                                <option value="put">PUT</option>
+                                <option value="delete">DELETE</option>
+                            </select>
+                            
+                            <button type="submit">Connect</button>
+                        </form>
+                    </div>
+                </div>
                     <div class="form-group">
                         <label for="api-select">Select API:</label>
                         <select id="api-select" required>
