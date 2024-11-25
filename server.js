@@ -109,11 +109,9 @@ app.post('/connect-api', async (req, res) => {
         res.json({
             success: true,
             message: 'API connected successfully!',
-            connection: {
-                id: newConnection.id,
-                name: newConnection.name,
-                status: newConnection.status
-            }
+            connections: apiConnections.map(({ id, name, status }) => ({
+                id, name, status
+            }))
         });
     } catch (error) {
         console.error('Error connecting to API:', error);
