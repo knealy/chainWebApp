@@ -53,6 +53,44 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.connected-apis {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f1f1f1;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.connected-apis h3 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.connected-apis ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.connected-apis li {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.connected-apis select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
 .workflow-builder {
     margin: 1rem 0;
 }

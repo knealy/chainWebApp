@@ -159,8 +159,8 @@ app.get('/api-events/:apiId', (req, res) => {
 
 // List all connected APIs
 app.get('/api-connections', (req, res) => {
-    const connections = apiConnections.map(({ id, name, status }) => ({
-        id, name, status
+    const connections = apiConnections.map(({ id, name, status, availableActions }) => ({
+        id, name, status, availableActions
     }));
     
     res.json({ 

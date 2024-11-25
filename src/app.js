@@ -64,6 +64,42 @@ document.addEventListener('DOMContentLoaded', () => {
         apiForm.addEventListener('submit', handleApiFormSubmit);
     }
 
+    // Fetch and display connected APIs
+    async function fetchAndDisplayApis() {
+        try {
+            const response = await fetch('/api-connections');
+            const data = await response.json();
+            const apiList = document.getElementById('apiList');
+            if (!apiList) return;
+
+            apiList.innerHTML = ''; // Clear existing list
+
+            if (data.success && data.connections) {
+                data.connections.forEach(connection => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = connection.name;
+
+                    // Create dropdown for actions
+                    const actionDropdown = document.createElement('select');
+                    actionDropdown.innerHTML = `
+                        <option value="">Select Action</option>
+                        <option value="get">GET</option>
+                        <option value="post">POST</option>
+                        <option value="put">PUT</option>
+                        <option value="delete">DELETE</option>
+                    `;
+                    listItem.appendChild(actionDropdown);
+
+                    apiList.appendChild(listItem);
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching API connections:', error);
+        }
+    }
+
+    // Call fetchAndDisplayApis initially and after connecting a new API
+    fetchAndDisplayApis();
 
     // Standard request handler with error handling
     async function makeRequest(url, data) {
@@ -187,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.success) {
                 alert('API connected successfully!');
-                updateApiDropdown();
+                fetchAndDisplayApis(); // Update API list after connecting
                 if (apiModal) {
                     apiModal.style.display = 'none';
                 }
