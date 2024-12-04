@@ -171,6 +171,41 @@ app.get('/api-connections', (req, res) => {
     });
 });
 
+app.post('/create-chain', (req, res) => {
+    const { apiId, eventId, actionId } = req.body;
+
+    if (!apiId || !eventId || !actionId) {
+        return res.json({
+            success: false,
+            message: 'API ID, Event ID, and Action ID are required'
+        });
+    }
+
+    const connection = apiConnections.find(api => api.id === apiId);
+    if (!connection) {
+        return res.json({
+            success: false,
+            message: 'API connection not found'
+        });
+    }
+
+    const newChain = {
+        id: chainReactions.length + 1,
+        apiId,
+        eventId,
+        actionId,
+        status: 'active'
+    };
+
+    chainReactions.push(newChain);
+
+    res.json({
+        success: true,
+        message: 'Chain reaction created successfully!',
+        chain: newChain
+    });
+});
+
 // Other existing routes remain the same...
 
 app.listen(PORT, () => {
