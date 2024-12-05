@@ -44,16 +44,27 @@
                                 <label for="webhookUrl">Webhook URL (optional):</label>                                
                                 <input type="text" id="webhookUrl" name="webhookUrl">                            
                             </div>                            
-                            <button id="submit-api-connection" class="submit-api-connection" type="submit">Connect</button>                        
+                            <button type="submit">Connect</button>                        
                         </form>                    
                     </div>                
                 </div>                    
-                <div class="api-integration-container">
-                    <select id="api-select"></select>
-                    <select id="event-select"></select>
-                    <select id="action-select"></select>
-                    <button class="add-api-event">Add Link</button>
-                </div>
+                <div class="form-group">                        
+                    <label for="api-select">Select API:</label>                        
+                    <select id="api-select" required>                            
+                        <option value="">Select an API</option>                        
+                    </select>                    
+                </div>                    
+                <div class="form-group">                        
+                    <label for="event-select">Select Event:</label>                        
+                    <select id="event-select" required>                            
+                        <option value="">Select an Event</option>                        
+                    </select>                    
+                </div>                    
+                    <div class="form-group">                        
+                        <label for="action-select">Select Action:</label>                        
+                        <select id="action-select" required>                            
+                            <option value="">Select an Action</option>                        </select>                    
+                        </div>                    
                             <button type="submit">Create Chain Reaction</button>                
                         </form>            
                     </div>                    
@@ -64,6 +75,5 @@
     </section>        
     <button class="save-button">Save Workflow</button>    
 </main>
-<script type="text/javascript" src="app.js"></script>
 </body>
 </html>
