@@ -27,6 +27,12 @@ function exampleTrigger() {
     return true;
 }
 
+// Trigger function for weather service API
+function weatherServiceTrigger(weatherData) {
+    // Logic to determine if the weather update should trigger an action
+    return weatherData && weatherData.updateAvailable;
+}
+
 // Example of a condition function
 function exampleCondition(context) {
     // Logic to evaluate the condition based on the context
@@ -39,6 +45,12 @@ function exampleAction(context) {
     console.log('Action executed with context:', context);
 }
 
+// Action function to update Google Sheets
+function updateGoogleSheetsAction(sheetData) {
+    // Logic to update Google Sheets with new data
+    console.log('Google Sheets updated with data:', sheetData);
+}
+
 // Export functions for use in other modules
 module.exports = {
     createFunction,
@@ -46,6 +58,7 @@ module.exports = {
     executeFunction,
     exampleTrigger,
     exampleCondition,
-    exampleAction
+    exampleAction,
+    weatherServiceTrigger,
+    updateGoogleSheetsAction
 };
-

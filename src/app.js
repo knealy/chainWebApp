@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiModal = document.getElementById('apiModal');
     const closeButton = document.querySelector('.close-button');
     const apiForm = document.getElementById('apiForm');
+    const weatherApiSelect = document.getElementById('weather-api-select');
+    const googleSheetsApiSelect = document.getElementById('google-sheets-api-select');
     const addApiButton = document.querySelector('.add-api-button');
     const newChainButton = document.querySelector('.new-chain-button');
     const addApiEventButton = document.querySelector('.add-api-event');
@@ -58,6 +60,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addApiButton && apiModal) {
         addApiButton.addEventListener('click', () => {
             apiModal.style.display = 'block';
+        });
+    }
+
+    if (weatherApiSelect && googleSheetsApiSelect) {
+        weatherApiSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                updateEventActionDropdowns(e.target.value, 'weather');
+            }
+        });
+
+        googleSheetsApiSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                updateEventActionDropdowns(e.target.value, 'googleSheets');
+            }
         });
     }
 
@@ -385,24 +401,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update handleApiFormSubmit
     async function handleApiChainEvent(event) {
         event.preventDefault();
-        const apiId = document.getElementById('api-select')?.value;
-        const eventId = document.getElementById('event-select')?.value;
-        const actionId = document.getElementById('action-select')?.value;
+        const weatherApiId = weatherApiSelect?.value;
+        const googleSheetsApiId = googleSheetsApiSelect?.value;
+        const weatherEventId = document.getElementById('weather-event-select')?.value;
+        const googleActionId = document.getElementById('google-action-select')?.value;
 
-        if (!apiId || !eventId || !actionId) {
-            alert('Please select an API, event, and action.');
+        if (!weatherApiId || !googleSheetsApiId || !weatherEventId || !googleActionId) {
+            alert('Please select both APIs, an event, and an action.');
             return;
         }
 
         try {
-            const response = await makeRequest('/create-chain', {
-                apiId: parseInt(apiId),
-                eventId: parseInt(eventId),
-                actionId: parseInt(actionId)
+            const response = await makeRequest('/create-weather-google-chain', {
+                weatherApiId: parseInt(weatherApiId),
+                googleSheetsApiId: parseInt(googleSheetsApiId),
+                weatherEventId: parseInt(weatherEventId),
+                googleActionId: parseInt(googleActionId)
             });
 
             if (response.success) {
-                alert('Chain reaction created successfully!');
+                alert('Weather to Google Sheets chain reaction created successfully!');
                 if (apiModal) {
                     apiModal.style.display = 'none';
                 }

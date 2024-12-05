@@ -159,7 +159,6 @@ app.get('/api-events/:apiId', (req, res) => {
     });
 });
 
-// List all connected APIs
 app.get('/api-connections', (req, res) => {
     const connections = apiConnections.map(({ id, name, status }) => ({
         id, name, status
@@ -168,6 +167,45 @@ app.get('/api-connections', (req, res) => {
     res.json({ 
         success: true, 
         connections 
+    });
+});
+
+// Create a chain reaction for weather service and Google Sheets
+app.post('/create-weather-google-chain', (req, res) => {
+    const { weatherApiId, googleSheetsApiId, weatherEventId, googleActionId } = req.body;
+
+    if (!weatherApiId || !googleSheetsApiId || !weatherEventId || !googleActionId) {
+        return res.json({
+            success: false,
+            message: 'Weather API ID, Google Sheets API ID, Weather Event ID, and Google Action ID are required'
+        });
+    }
+
+    const weatherConnection = apiConnections.find(api => api.id === weatherApiId);
+    const googleSheetsConnection = apiConnections.find(api => api.id === googleSheetsApiId);
+
+    if (!weatherConnection || !googleSheetsConnection) {
+        return res.json({
+            success: false,
+            message: 'API connection not found for one or both services'
+        });
+    }
+
+    const newChain = {
+        id: chainReactions.length + 1,
+        weatherApiId,
+        googleSheetsApiId,
+        weatherEventId,
+        googleActionId,
+        status: 'active'
+    };
+
+    chainReactions.push(newChain);
+
+    res.json({
+        success: true,
+        message: 'Weather to Google Sheets chain reaction created successfully!',
+        chain: newChain
     });
 });
 

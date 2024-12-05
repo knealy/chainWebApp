@@ -16,8 +16,40 @@
             <div class="api-integration-container">
                 <button class="add-api-button">Add New API</button>
 
+                <!-- Dropdowns for selecting APIs -->
+                <div class="form-group">
+                    <label for="weather-api-select">Select Weather Service API:</label>
+                    <select id="weather-api-select" name="weather-api-select">
+                        <option value="">Select an API</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="google-sheets-api-select">Select Google Sheets API:</label>
+                    <select id="google-sheets-api-select" name="google-sheets-api-select">
+                        <option value="">Select an API</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Dropdowns for selecting events and actions -->
+                <div class="form-group">
+                    <label for="weather-event-select">Select Weather Event:</label>
+                    <select id="weather-event-select" name="weather-event-select">
+                        <option value="">Select an Event</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="google-action-select">Select Google Action:</label>
+                    <select id="google-action-select" name="google-action-select">
+                        <option value="">Select an Action</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+
                 <!-- Modal Structure for Adding New API -->
-                 <div id="apiModal" class="modal", style="display: none;">
+                <div id="apiModal" class="modal" style="display: none;">
                     <div class="modal-content">
                         <span class="close-button">&times;</span>
                         <h2>Connect API</h2>
@@ -51,4 +83,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
