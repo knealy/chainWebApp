@@ -97,4 +97,3 @@ This design provides a cohesive and user-friendly experience while
 maintaining a professional appearance tailored to productivity-focused 
 users.
 ```
-
