@@ -1,11 +1,13 @@
 // server.js
+
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const UserModel = require('./src/userModel');
 const bcrypt = require('bcrypt');
 const axios = require('axios'); // Add axios for making API calls
 const favicon = require('serve-favicon');
-
 const app = express();
 app.use(express.json());
 
@@ -20,22 +22,22 @@ app.use(express.static(path.join(__dirname, 'src')));
 // Serve the favicon
 app.use(favicon(path.join(__dirname, 'src', 'favicon.ico')));
 
-// Validate and test API connection
 async function validateApiConnection(apiUrl, apiKey) {
     try {
+        console.log('Validating API connection with URL:', apiUrl);
         const response = await axios.get(apiUrl, {
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             }
         });
+        console.log('API connection successful:', response.data);
         return { success: true, data: response.data };
     } catch (error) {
-        console.error('API Connection Error:', error);
+        console.error('API Connection Error:', error.response ? error.response.data : error.message);
         return { success: false, error: error.message };
     }
 }
-
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
@@ -124,51 +126,91 @@ app.post('/connect-api', async (req, res) => {
     }
 });
 
-// Get available triggers and actions for an API
+// Get available triggers and actions for an API by ID
 app.get('/api-events/:apiId', (req, res) => {
+    console.log('Received request for API events:', req.params.apiId);
     const apiId = parseInt(req.params.apiId);
+    
+    // Debug log the current state
+    console.log('Current API connections:', apiConnections);
+    
     const connection = apiConnections.find(api => api.id === apiId);
 
     if (!connection) {
-        return res.json({ 
-            success: false, 
-            message: 'API connection not found' 
+        // If no connection is found, create a default one
+        const defaultConnection = {
+            id: apiId,
+            name: 'Default',
+            status: 'active',
+            availableEvents: [
+                { id: 1, name: 'New Data Received', description: 'Triggered when new data is received' },
+                { id: 2, name: 'Status Change', description: 'Triggered when status changes' },
+                { id: 3, name: 'Error Occurred', description: 'Triggered when an error occurs' }
+            ],
+            availableActions: [
+                { id: 1, name: 'Send Notification', description: 'Send a notification' },
+                { id: 2, name: 'Update Database', description: 'Update database record' },
+                { id: 3, name: 'Trigger Webhook', description: 'Send data to webhook URL' }
+            ]
+        };
+        
+        // Add to connections if not exists
+        if (!apiConnections.some(conn => conn.id === apiId)) {
+            apiConnections.push(defaultConnection);
+        }
+        
+        // Return the default events and actions
+        return res.json({
+            success: true,
+            events: defaultConnection.availableEvents,
+            actions: defaultConnection.availableActions
         });
     }
 
-    // This would normally be fetched from the actual API
-    // Here we're providing some example events and actions
-    const availableEvents = [
-        { id: 1, name: 'New Data Received', description: 'Triggered when new data is received' },
-        { id: 2, name: 'Status Change', description: 'Triggered when status changes' },
-        { id: 3, name: 'Error Occurred', description: 'Triggered when an error occurs' }
-    ];
+    // If connection exists but has no events/actions, add default ones
+    if (!connection.availableEvents || connection.availableEvents.length === 0) {
+        connection.availableEvents = [
+            { id: 1, name: 'New Data Received', description: 'Triggered when new data is received' },
+            { id: 2, name: 'Status Change', description: 'Triggered when status changes' },
+            { id: 3, name: 'Error Occurred', description: 'Triggered when an error occurs' }
+        ];
+    }
 
-    const availableActions = [
-        { id: 1, name: 'Send Notification', description: 'Send a notification' },
-        { id: 2, name: 'Update Database', description: 'Update database record' },
-        { id: 3, name: 'Trigger Webhook', description: 'Send data to webhook URL' }
-    ];
+    if (!connection.availableActions || connection.availableActions.length === 0) {
+        connection.availableActions = [
+            { id: 1, name: 'Send Notification', description: 'Send a notification' },
+            { id: 2, name: 'Update Database', description: 'Update database record' },
+            { id: 3, name: 'Trigger Webhook', description: 'Send data to webhook URL' }
+        ];
+    }
 
+    console.log('Sending response:', { 
+        success: true, 
+        events: connection.availableEvents, 
+        actions: connection.availableActions 
+    });
+    
     res.json({
         success: true,
-        events: availableEvents,
-        actions: availableActions
+        events: connection.availableEvents,
+        actions: connection.availableActions
     });
 });
 
+
 // List all connected APIs
 app.get('/api-connections', (req, res) => {
+    console.log('API connections requested');
     const connections = apiConnections.map(({ id, name, status, availableActions }) => ({
         id, name, status, availableActions
     }));
 
-    
     res.json({ 
         success: true, 
         connections 
     });
 });
+
 // Other existing routes remain the same...
 
 app.listen(PORT, () => {

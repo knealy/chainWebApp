@@ -1,51 +1,61 @@
 // src/functionManager.js
+   console.log('functionManager.js executing...');
+   // Define the functionManager object
+   const functionManager = {
+       userTriggers: {},
+       userActions: {},
 
-// In-memory storage for IFTTT functions
-const iftttFunctions = {};
+       registerTrigger: function(name, triggerFunction) {
+           if (typeof triggerFunction !== 'function') {
+               throw new Error('Trigger must be a function');
+           }
+           this.userTriggers[name] = triggerFunction;
+           console.log(`Trigger registered: ${name}`);
+       },
 
-// Function to create a new IFTTT function
-function createFunction(id, trigger, condition, action) {
-    iftttFunctions[id] = { trigger, condition, action };
-}
+       registerAction: function(name, actionFunction) {
+           if (typeof actionFunction !== 'function') {
+               throw new Error('Action must be a function');
+           }
+           this.userActions[name] = actionFunction;
+           console.log(`Action registered: ${name}`);
+       },
 
-// Function to save an IFTTT function
-function saveFunction(id, trigger, condition, action) {
-    iftttFunctions[id] = { trigger, condition, action };
-}
+       // Fixed recursive call in createDynamicFunction
+        createDynamicFunction(id, triggerName, condition, actionName) {
+            const trigger = this.userTriggers[triggerName];
+            const action = this.userActions[actionName];
+            
+            if (!trigger) {
+                throw new Error(`Trigger ${triggerName} not found`);
+            }
+            if (!action) {
+                throw new Error(`Action ${actionName} not found`);
+            }
 
-// Function to execute an IFTTT function
-function executeFunction(id, context) {
-    const func = iftttFunctions[id];
-    if (func && func.condition(context)) {
-        func.action(context);
-    }
-}
+            // Changed from this.createDynamicFunction to this.createFunction
+            this.createFunction(id, trigger, condition, action);
+            console.log(`Dynamic function created: ${id}`);
+        },
 
-// Example of a trigger function
-function exampleTrigger() {
-    // Logic to determine if the trigger condition is met
-    return true;
-}
+        createFunction(id, trigger, condition, action) {
+            console.log(`Function ${id} created with trigger, condition, and action.`);
+            // Example: Execute the workflow
+            (async () => {
+                try {
+                    const data = await trigger();
+                    if (condition(data)) {
+                        action(data);
+                    }
+                } catch (error) {
+                    console.error(`Error executing workflow ${id}:`, error);
+                }
+            })();
+        }
+   };
+    
+   // Make it globally available
+   window.functionManager = functionManager;
+   console.log('functionManager initialized:', window.functionManager);
 
-// Example of a condition function
-function exampleCondition(context) {
-    // Logic to evaluate the condition based on the context
-    return context.value > 10;
-}
-
-// Example of an action function
-function exampleAction(context) {
-    // Logic to perform the action
-    console.log('Action executed with context:', context);
-}
-
-// Export functions for use in other modules
-module.exports = {
-    createFunction,
-    saveFunction,
-    executeFunction,
-    exampleTrigger,
-    exampleCondition,
-    exampleAction
-};
-
+   
