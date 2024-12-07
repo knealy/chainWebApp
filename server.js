@@ -350,6 +350,8 @@ app.post('/connect-api', async (req, res) => {
         };
 
         apiConnections.push(newConnection);
+        console.log('New API connection added:', newConnection); // Log the new connection
+        console.log('Updated API connections list:', apiConnections); // Log the updated list
 
         res.json({
             success: true,

@@ -22,20 +22,39 @@
        },
 
        // Fixed recursive call in createDynamicFunction
-        createDynamicFunction(id, triggerName, condition, actionName) {
-            const trigger = this.userTriggers[triggerName];
-            const action = this.userActions[actionName];
-            
-            if (!trigger) {
-                throw new Error(`Trigger ${triggerName} not found`);
-            }
-            if (!action) {
-                throw new Error(`Action ${actionName} not found`);
-            }
+        createDynamicFunction(id, triggerNames, condition, actionNames) {
+            const triggers = triggerNames.map(name => {
+                const trigger = this.userTriggers[name];
+                if (!trigger) {
+                    throw new Error(`Trigger ${name} not found`);
+                }
+                return trigger;
+            });
 
-            // Changed from this.createDynamicFunction to this.createFunction
-            this.createFunction(id, trigger, condition, action);
+            const actions = actionNames.map(name => {
+                const action = this.userActions[name];
+                if (!action) {
+                    throw new Error(`Action ${name} not found`);
+                }
+                return action;
+            });
+
+            this.createCombinedFunction(id, triggers, condition, actions);
             console.log(`Dynamic function created: ${id}`);
+        },
+
+        createCombinedFunction(id, triggers, condition, actions) {
+            console.log(`Combined function ${id} created with multiple triggers and actions.`);
+            (async () => {
+                try {
+                    const results = await Promise.all(triggers.map(trigger => trigger()));
+                    if (results.every(condition)) {
+                        actions.forEach(action => action(results));
+                    }
+                } catch (error) {
+                    console.error(`Error executing combined workflow ${id}:`, error);
+                }
+            })();
         },
 
         createFunction(id, trigger, condition, action) {
@@ -57,5 +76,3 @@
    // Make it globally available
    window.functionManager = functionManager;
    console.log('functionManager initialized:', window.functionManager);
-
-   

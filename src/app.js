@@ -1,4 +1,3 @@
-
 // Add this function for better error handling
 function handleError(error, context) {
     console.error(`Error in ${context}:`, error);
@@ -147,19 +146,33 @@ async function handleApiFormSubmit(event) {
         if (response.success) {
             alert('API connected successfully!');
              // Refresh the list automatically
-            await fetchAndDisplayApis();
-            await updateApiDropdown();
-            if (apiModal) {
-                apiModal.style.display = 'none';
-            }
-            // Clear the form
-            event.target.reset();
+            await fetchAndDisplayApis(); // Ensure the list is refreshed
+            console.log('Updated API connections:', response.connections); // Log updated connections
+            elements.apiModal.style.display = 'none';
+            event.target.reset(); // Clear the form
         } else {
+            console.error('Failed to connect API:', response.message);
             alert('Failed to connect API: ' + response.message);
         }
     } catch (error) {
         console.error('Error connecting API:', error);
         alert('An error occurred while connecting to the API.');
+    }
+}
+
+// Function to combine multiple chain links into a single workflow
+async function combineChainLinks(chainIds) {
+    try {
+        const response = await makeRequest('/combine-chain-links', { chainIds });
+        if (response.success) {
+            alert('Chain links combined successfully!');
+            await fetchAndDisplayChainLinks(); // Refresh the list
+        } else {
+            throw new Error(response.message || 'Failed to combine chain links');
+        }
+    } catch (error) {
+        console.error('Error combining chain links:', error);
+        alert('An error occurred while combining chain links. Please try again.');
     }
 }
 
@@ -842,9 +855,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add API event button
+    // Add API event button and combine chain links button
     if (elements.addApiEventButton) {
         elements.addApiEventButton.addEventListener('choose-api-action', handleApiChainEvent);
+    }
+    const combineChainLinksButton = document.querySelector('.combine-chain-links-btn');
+    if (combineChainLinksButton) {
+        combineChainLinksButton.addEventListener('click', async () => {
+            const selectedChainIds = getSelectedChainIds(); // Assume this function retrieves selected chain IDs
+            if (selectedChainIds.length > 0) {
+                await combineChainLinks(selectedChainIds);
+            } else {
+                alert('Please select at least two chain links to combine.');
+            }
+        });
     }
 
     // New chain button 
