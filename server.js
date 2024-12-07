@@ -17,8 +17,24 @@ const users = [];
 const chainLinks = [];
 const chainReactions = [];
 const apiConnections = [];
-
-
+// const apiConnections = [
+    // {
+    //     id: 1,
+    //     name: "OpenWeather API",
+    //     apiUrl: "https://api.openweathermap.org",
+    //     apiKey: process.env.OPENWEATHER_API_KEY || "your-api-key",
+    //     status: "active",
+    //     created: new Date().toISOString()
+    // },
+    // {
+    //     id: 2,
+    //     name: "GitHub API",
+    //     apiUrl: "https://api.github.com",
+    //     apiKey: process.env.GITHUB_API_KEY || "your-api-key",
+    //     status: "active",
+    //     created: new Date().toISOString()
+    // }
+// ];
 const cors = require('cors');
 app.use(cors());
 
@@ -315,7 +331,7 @@ app.post('/login', async (req, res) => {
 });
 
 
-// Add new endpoint to handle API connections
+// Endpoint to handle API connections
 app.post('/connect-api', async (req, res) => {
     const { apiUrl, apiKey, apiName, webhookUrl } = req.body;
 
@@ -341,7 +357,7 @@ app.post('/connect-api', async (req, res) => {
         const newConnection = {
             id: apiConnections.length + 1,
             name: apiName,
-            url: apiUrl,
+            apiUrl: apiUrl, // Renamed from 'url' to 'apiUrl'
             key: apiKey,
             webhookUrl: webhookUrl,
             status: 'active',
@@ -349,7 +365,9 @@ app.post('/connect-api', async (req, res) => {
             availableActions: connectionTest.actions || []
         };
 
+        console.log('New API connection added:', newConnection); // Log the new connection
         apiConnections.push(newConnection);
+        console.log('Updated API connections list:', apiConnections); // Log the updated list
 
         res.json({
             success: true,
@@ -366,6 +384,7 @@ app.post('/connect-api', async (req, res) => {
         });
     }
 });
+
 
 
 app.get('/api-events-actions/:apiId', validateApiId, (req, res) => {
@@ -410,17 +429,52 @@ app.get('/api-events-actions/:apiId', validateApiId, (req, res) => {
 });
 
 
-// List all connected APIs
 app.get('/api-connections', (req, res) => {
-    console.log('API connections requested');
-    const connections = apiConnections.map(({ id, name, status, availableActions }) => ({
-        id, name, status, availableActions
-    }));
+    try {
+        console.log('Fetching API connections, current count:', apiConnections.length);
+        
+        // Add data validation and mapping
+        const validConnections = apiConnections
+            .filter(conn => conn && conn.id && conn.apiUrl) // Filter out invalid entries
+            .map(conn => ({
+                id: conn.id,
+                name: conn.name || 'Unnamed API',
+                apiUrl: conn.apiUrl,
+                status: conn.status || 'unknown',
+                created: conn.created,
+                // Exclude sensitive data like apiKey
+            }));
 
-    res.json({ 
-        success: true, 
-        connections 
-    });
+        console.log('Sending valid API connections:', {
+            total: apiConnections.length,
+            valid: validConnections.length,
+            connections: validConnections.map(c => ({
+                id: c.id,
+                name: c.name,
+                url: c.apiUrl
+            }))
+        });
+
+        res.json({
+            success: true,
+            connections: validConnections.map(conn => ({
+                id: conn.id,
+                name: conn.name,
+                apiUrl: conn.apiUrl,
+                status: conn.status || 'unknown',
+                created: conn.created,
+                // Exclude sensitive data like apiKey
+            }))
+        });
+
+    } catch (error) {
+        console.error('Error fetching API connections:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch API connections',
+            error: error.message
+        });
+    }
 });
 
 // Test API connection endpoint
@@ -505,70 +559,6 @@ app.delete('/delete-api/:apiId', (req, res) => {
         });
     }
 });
-
-
-app.post('/create-chain-link', async (req, res) => {
-    console.log('Received create chain link request:', req.body);
-    
-    const { name, trigger, action, apiId } = req.body;
-    
-    // Validate required fields
-    if (!name || !trigger || !action || !apiId) {
-        console.error('Missing required fields:', {
-            name: !!name,
-            trigger: !!trigger,
-            action: !!action,
-            apiId: !!apiId
-        });
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Name, trigger, action, and API ID are required' 
-        });
-    }
-
-    try {
-        // Verify the API exists
-        const api = apiConnections.find(api => api.id === apiId);
-        if (!api) {
-            console.error('API not found:', apiId);
-            return res.status(404).json({
-                success: false,
-                message: 'API connection not found'
-            });
-        }
-
-        // Create the new chain link
-        const newChainLink = {
-            id: chainLinks.length + 1,
-            name,
-            trigger,
-            action,
-            apiId,
-            status: 'active',
-            created: new Date().toISOString()
-        };
-
-        chainLinks.push(newChainLink);
-
-        console.log('Created new chain link:', newChainLink);
-
-        res.json({
-            success: true,
-            message: 'Chain link created successfully!',
-            chainLink: newChainLink
-        });
-    } catch (error) {
-        console.error('Error creating chain link:', {
-            error: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to create chain link: ' + error.message 
-        });
-    }
-});
-
 
 app.get('/chain-links', (req, res) => {
     console.log('Chain links requested');

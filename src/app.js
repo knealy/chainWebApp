@@ -1,4 +1,3 @@
-
 // Add this function for better error handling
 function handleError(error, context) {
     console.error(`Error in ${context}:`, error);
@@ -34,31 +33,33 @@ async function makeRequest(url, data) {
         throw error;
     }
 }
-
-// Function to fetch and display connected APIs
 async function fetchAndDisplayApis() {
     try {
         const response = await fetch('/api-connections');
         const data = await response.json();
+        console.log('Fetched API Connections:', data); // Debugging line
         const apiList = document.getElementById('apiList');
         const apiSelect = document.getElementById('api-select');
         
-        if (!apiList || !apiSelect) return;
+        if (!apiList || !apiSelect) {
+            console.error('Required DOM elements not found');
+            return;
+        }
 
         // Clear existing lists
         apiList.innerHTML = '';
         apiSelect.innerHTML = '<option value="">Select an API</option>';
 
-        if (data.success && data.connections) {
+        // Check if we have valid connections
+        if (data.connections && Array.isArray(data.connections) && data.connections.length > 0) {
             data.connections.forEach(connection => {
-                // Create list item for apiList
                 const listItem = document.createElement('li');
                 listItem.className = 'api-list-item';
                 
-                // Add API name and status
                 listItem.innerHTML = `
-                    <span class="api-name">${connection.name}</span>
-                    <span class="api-status ${connection.status}">${connection.status}</span>
+                    <span class="api-name">${connection.name || 'Unnamed API'}</span>
+                    <span class="api-url">${connection.apiUrl || 'No URL'}</span>
+                    <span class="api-status ${connection.status || 'unknown'}">${connection.status || 'unknown'}</span>
                     <div class="api-controls">
                         <select class="api-action-select">
                             <option value="">Select Action</option>
@@ -70,56 +71,93 @@ async function fetchAndDisplayApis() {
                     </div>
                 `;
 
-                // Add event listener for the action button
+                // Add event listeners
                 const actionBtn = listItem.querySelector('.api-action-btn');
                 const actionSelect = listItem.querySelector('.api-action-select');
                 
-                actionBtn.addEventListener('click', () => {
-                    const selectedAction = actionSelect.value;
-                    if (selectedAction) {
-                        handleApiAction(connection.id, selectedAction);
-                    }
-                });
+                if (actionBtn && actionSelect) {
+                    actionBtn.addEventListener('click', () => {
+                        const selectedAction = actionSelect.value;
+                        if (selectedAction) {
+                            handleApiAction(connection.id, selectedAction);
+                        }
+                    });
+                }
 
                 apiList.appendChild(listItem);
 
                 // Add option to api-select dropdown
                 const option = document.createElement('option');
                 option.value = connection.id;
-                option.textContent = connection.name;
+                option.textContent = `${connection.name} (${connection.apiUrl})`; // Ensure 'apiUrl' is used
                 apiSelect.appendChild(option);
             });
+        } else {
+            console.warn('No valid API connections found:', data);
+            apiList.innerHTML = '<li>No API connections available</li>';
         }
     } catch (error) {
         console.error('Error fetching API connections:', error);
+        alert('Failed to fetch API connections. Please try again.');
     }
 }
 
-// Function to handle API actions
-async function handleApiAction(apiId, action) {
+
+async function testApiConnection(apiId) {
     try {
-        switch (action) {
-            case 'test':
-                const testResponse = await fetch(`/test-api/${apiId}`);
-                const testResult = await testResponse.json();
-                alert(testResult.message);
-                break;
-            case 'edit':
-                // Implement edit functionality
-                break;
-            case 'delete':
-                if (confirm('Are you sure you want to delete this API connection?')) {
-                    const deleteResponse = await fetch(`/delete-api/${apiId}`, { method: 'DELETE' });
-                    const deleteResult = await deleteResponse.json();
-                    if (deleteResult.success) {
-                        fetchAndDisplayApis(); // Refresh the list
-                    }
-                }
-                break;
+        const response = await fetch(`/test-api/${apiId}`);
+        const data = await response.json();
+        if(data.success) {
+            alert('API Connection is valid.');
+        } else {
+            alert('API Connection test failed: ' + data.message);
         }
     } catch (error) {
-        console.error('Error handling API action:', error);
-        alert('Error executing action. Please try again.');
+        console.error('Error testing API connection:', error);
+        alert('An error occurred while testing the API connection.');
+    }
+}
+
+function editApiConnection(apiId) {
+    // Implement edit functionality
+    alert(`Edit functionality for API ID: ${apiId} is not implemented yet.`);
+}
+
+
+
+async function deleteApiConnection(apiId) {
+    if(confirm('Are you sure you want to delete this API connection?')) {
+        try {
+            const response = await fetch(`/delete-api/${apiId}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            if(data.success) {
+                alert('API Connection deleted successfully.');
+                fetchAndDisplayApis(); // Refresh the list
+            } else {
+                alert('Failed to delete API connection: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error deleting API connection:', error);
+            alert('An error occurred while deleting the API connection.');
+        }
+    }
+}
+
+function handleApiAction(apiId, action) {
+    switch(action) {
+        case 'test':
+            testApiConnection(apiId);
+            break;
+        case 'edit':
+            editApiConnection(apiId);
+            break;
+        case 'delete':
+            deleteApiConnection(apiId);
+            break;
+        default:
+            console.warn('Unknown action:', action);
     }
 }
 
@@ -130,6 +168,7 @@ async function handleApiFormSubmit(event) {
     const apiUrl = document.getElementById('apiUrl')?.value.trim();
     const apiKey = document.getElementById('apiKey')?.value.trim();
     const webhookUrl = document.getElementById('webhookUrl')?.value.trim();
+    const apiModal = document.getElementById('apiModal');
 
     if (!apiName || !apiUrl || !apiKey) {
         alert('Please fill in all required fields.');
@@ -146,15 +185,14 @@ async function handleApiFormSubmit(event) {
 
         if (response.success) {
             alert('API connected successfully!');
-             // Refresh the list automatically
             await fetchAndDisplayApis();
-            await updateApiDropdown();
             if (apiModal) {
                 apiModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
             }
-            // Clear the form
             event.target.reset();
         } else {
+            console.error('Failed to connect API:', response.message);
             alert('Failed to connect API: ' + response.message);
         }
     } catch (error) {
@@ -239,6 +277,23 @@ function handleNewChain() {
         });
 }
 
+
+// Function to combine multiple chain links into a single workflow
+async function combineChainLinks(chainIds) {
+    try {
+        const response = await makeRequest('/combine-chain-links', { chainIds });
+        if (response.success) {
+            alert('Chain links combined successfully!');
+            await fetchAndDisplayChainLinks(); // Refresh the list
+        } else {
+            throw new Error(response.message || 'Failed to combine chain links');
+        }
+    } catch (error) {
+        console.error('Error combining chain links:', error);
+        alert('An error occurred while combining chain links. Please try again.');
+    }
+}
+
 // API Key Management
 function addApiKey(key) {
     if (!key) return;
@@ -284,40 +339,72 @@ function listDynamicFunctions() {
 }
 
 
-    // Add new API connection handling
-async function handleNewApiConnection() {
-    const apiName = prompt('Enter a name for this API connection:');
-    if (!apiName) return;
+//     // Add new API connection handling
+// async function handleNewApiConnection() {
+//     const apiName = prompt('Enter a name for this API connection:');
+//     if (!apiName) return;
 
-    const apiUrl = prompt('Enter the API URL:');
-    if (!apiUrl) return;
+//     const apiUrl = prompt('Enter the API URL:');
+//     if (!apiUrl) return;
 
-    const apiKey = prompt('Enter the API key:');
-    if (!apiKey) return;
+//     const apiKey = prompt('Enter the API key:');
+//     if (!apiKey) return;
 
-    const webhookUrl = prompt('Enter webhook URL (optional):');
+//     const webhookUrl = prompt('Enter webhook URL (optional):');
+
+//     try {
+//         const response = await makeRequest('/connect-api', {
+//             apiName,
+//             apiUrl,
+//             apiKey,
+//             webhookUrl
+//         });
+
+//         if (response.success) {
+//             alert('API connected successfully!');
+//             updateApiDropdown();
+//         } else {
+//             alert('Failed to connect API: ' + response.message);
+//         }
+//     } catch (error) {
+//         console.error('Error connecting API:', error);
+//         alert('An error occurred while connecting to the API.');
+//     }
+
+//     if (apiModal) {
+//         apiModal.style.display = 'none';
+//     }
+// }
+
+async function handleNewApiConnection(event) {
+    event.preventDefault();
+    const name = document.getElementById('apiName').value.trim();
+    const apiUrl = document.getElementById('apiUrl').value.trim();
+    const apiKey = document.getElementById('apiKey').value.trim();
+
+    if (!name || !apiUrl || !apiKey) {
+        alert('Please fill in all required fields');
+        return;
+    }
 
     try {
-        const response = await makeRequest('/connect-api', {
-            apiName,
-            apiUrl,
-            apiKey,
-            webhookUrl
+        const formattedUrl = validateAndFormatApiUrl(apiUrl);
+        const response = await makeRequest('/api-connection', {
+            name,
+            apiUrl: formattedUrl,
+            apiKey
         });
 
         if (response.success) {
-            alert('API connected successfully!');
-            updateApiDropdown();
+            alert('API connection created successfully!');
+            document.getElementById('apiForm').reset();
+            await fetchAndDisplayApis();
         } else {
-            alert('Failed to connect API: ' + response.message);
+            throw new Error(response.message || 'Failed to create API connection');
         }
     } catch (error) {
-        console.error('Error connecting API:', error);
-        alert('An error occurred while connecting to the API.');
-    }
-
-    if (apiModal) {
-        apiModal.style.display = 'none';
+        console.error('Error creating API connection:', error);
+        alert(`Failed to create API connection: ${error.message}`);
     }
 }
 
@@ -484,14 +571,97 @@ async function handleApiChainEvent(event) {
 
 async function testChainLink(chainId) {
     try {
-        const response = await fetch(`/test-chain/${chainId}`, {
-            method: 'POST'
-        });
+        // First, fetch the chain link details
+        const response = await fetch('/chain-links');
         const data = await response.json();
-        alert(data.message);
+        const chainLink = data.chainLinks.find(chain => chain.id === chainId);
+        
+        if (!chainLink) {
+            throw new Error('Chain link not found');
+        }
+
+        console.log('Found chain link:', chainLink);
+
+        // Get the API connection details
+        const apiResponse = await fetch('/api-connections');
+        const apiData = await apiResponse.json();
+        
+        console.log('API Connections response:', apiData);
+
+        if (!apiData.success || !apiData.connections) {
+            throw new Error('Failed to fetch API connections');
+        }
+
+        const apiConnection = apiData.connections.find(api => api.id === chainLink.apiId);
+
+        if (!apiConnection) {
+            throw new Error(`API connection not found for ID: ${chainLink.apiId}`);
+        }
+
+        if (!apiConnection.apiUrl) {
+            throw new Error(`API URL is missing for connection: ${apiConnection.name}`);
+        }
+
+        console.log('Found API connection:', {
+            id: apiConnection.id,
+            name: apiConnection.name,
+            url: apiConnection.apiUrl
+        });
+
+        // Construct the base URL properly
+        let baseUrl = apiConnection.apiUrl;
+        if (!baseUrl.startsWith('http')) {
+            baseUrl = `https://${baseUrl}`;
+        }
+        if (baseUrl.endsWith('/')) {
+            baseUrl = baseUrl.slice(0, -1);
+        }
+
+        console.log('Using base URL:', baseUrl);
+
+        // Use functionManager to test the chain
+        const testResult = await functionManager.testChainLink(
+            chainId,
+            chainLink.trigger,
+            chainLink.action,
+            {
+                apiUrl: baseUrl,
+                apiKey: apiConnection.apiKey,
+                headers: {
+                    'Authorization': `Bearer ${apiConnection.apiKey}`,
+                    'Content-Type': 'application/json',
+                    'X-API-Key': apiConnection.apiKey
+                }
+            }
+        );
+
+        if (testResult.success) {
+            console.log('Test successful:', testResult);
+            alert(`Test successful!\n\nTrigger: ${testResult.details.triggerResult.type}\nAction: ${testResult.details.actionResult.type}`);
+        } else {
+            throw new Error(testResult.message);
+        }
     } catch (error) {
-        console.error('Error testing chain:', error);
-        alert('Error testing chain link');
+        console.error('Error testing chain:', {
+            error: error.message,
+            chainId,
+            stack: error.stack,
+            fullError: error
+        });
+        alert(`Error testing chain link: ${error.message}\n\nPlease check the console for more details.`);
+    }
+}
+
+function validateAndFormatApiUrl(url) {
+    try {
+        if (!url.startsWith('http')) {
+            url = `https://${url}`;
+        }
+        const urlObj = new URL(url);
+        return urlObj.toString().replace(/\/$/, ''); // Remove trailing slash
+    } catch (error) {
+        console.error('Invalid API URL:', error);
+        throw new Error('Invalid API URL format');
     }
 }
 
@@ -610,7 +780,7 @@ function showChainLinkForm() {
     const chainLinkForm = document.getElementById('chainLinkForm');
     if (chainLinkForm) {
         chainLinkForm.style.display = 'block';
-        updateApiDropdown(); 
+        document.body.classList.add('modal-open');
     }
 }
 
@@ -618,9 +788,7 @@ function hideChainLinkForm() {
     const chainLinkForm = document.getElementById('chainLinkForm');
     if (chainLinkForm) {
         chainLinkForm.style.display = 'none';
-        // Reset the form
-        const form = document.getElementById('newChainLinkForm');
-        if (form) form.reset();
+        document.body.classList.remove('modal-open');
     }
 }
 
@@ -628,8 +796,7 @@ function hideApiModal() {
     const apiModal = document.getElementById('apiModal');
     if (apiModal) {
         apiModal.style.display = 'none';
-        const form = document.getElementById('apiForm');
-        if (form) form.reset();
+        document.body.classList.remove('modal-open');
     }
 }
 
@@ -674,6 +841,10 @@ function conditionFunction(data) {
     // Default condition that always returns true
     // You can modify this to add specific conditions
     return true;
+}
+
+function generateUniqueId(name, url) {
+    return `${name}_${url}`.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -769,6 +940,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const apiModal = elements.apiModal;
                 if (apiModal) {
                     apiModal.style.display = 'block';
+                    document.body.classList.add('modal-open'); // Add class when modal is open
                 }
             } catch (error) {
                 handleError(error, 'Add API button click');
@@ -780,6 +952,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.closeButton.addEventListener('click', (e) => {
             e.preventDefault();
             console.log('Close button clicked');
+            document.body.classList.remove('modal-open'); // Remove class when modal is closed
             apiModal.style.display = 'none';
         });
     }
@@ -842,9 +1015,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add API event button
+    // Add API event button and combine chain links button 
     if (elements.addApiEventButton) {
         elements.addApiEventButton.addEventListener('choose-api-action', handleApiChainEvent);
+    }
+
+    const combineChainLinksButton = document.querySelector('.combine-chain-links-btn');
+    if (combineChainLinksButton) {
+        combineChainLinksButton.addEventListener('click', async () => {
+            const selectedChainIds = getSelectedChainIds(); // Assume this function retrieves selected chain IDs
+            if (selectedChainIds.length > 0) {
+                await combineChainLinks(selectedChainIds);
+            } else {
+                alert('Please select at least two chain links to combine.');
+            }
+        });
     }
 
     // New chain button 

@@ -41,10 +41,10 @@
         margin: 0;
         min-height: 100vh;
         display: flex;
-        /* justify-content: center;
-        align-items: center; */
-        justify-content: flex-start;
-        align-items: flex-start;
+        justify-content: center;
+        align-items: center;
+        /* justify-content: flex-start;
+        align-items: flex-start; */
         background-image: url('../assets/grad-bg2.png');
         background-size: cover;
         background-position: center;
@@ -77,6 +77,19 @@
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
     }
+
+    /* Disable animations when a modal is open */
+    body.modal-open .main-functionality:hover,
+    body.modal-open .api-integration-container:hover,
+    body.modal-open .chain-links-container:hover,
+    body.modal-open .chain-list-item:hover,
+    body.modal-open .logo-container-chainLinks:hover,
+    body.modal-open .logo-container-connectedApis:hover {
+        transform: none !important;
+        box-shadow: none !important;
+        animation: none !important;
+    }
+    
 
     .modal {
         display: none;
@@ -185,8 +198,21 @@
         padding: 1rem;
         margin: 1rem 0;
         border-radius: 16px;
-        transition: background 0.5s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s ease;
     }
+
+    .api-integration-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        background-image: url('../assets/flame-chain-cyb1.png');
+    }
+
+    /* Disable animations when a modal is open */
+    body.modal-open .api-integration-container:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
     .chain-links-container {
         background: var(--card-background);
         background-image: url('../assets/flame-chain-cyb5.png');
@@ -199,15 +225,20 @@
         padding: 1.5rem;
         margin: 1rem 0;
         border-radius: 16px;
-        transition: all var(--transition-speed);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s ease;
     }
-    
+
     .chain-links-container:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        background-image: url('../assets/flame-chain-cyb10.png');
+        background-image: url('../assets/flame-chain-cyb1.png');
     }
 
+    /* Disable animations when a modal is open */
+    body.modal-open .chain-links-container:hover {
+        transform: none;
+        box-shadow: none;
+    }
     /* Style the headings */
     .chain-links-container h3 {
         color: var(--text-color);
@@ -233,12 +264,7 @@
         background: var(--hover-color);
     }
 
-    /* .chain-links-container:hover, 
-    .api-integration-container:hover {
-        background-image: url('../assets/flame-chain-cyb10.png');
-    } */
-    
-        /* Style the chain links list */
+    /* Style the chain links list */
     #chainList {
         list-style: none;
         padding: 0;
