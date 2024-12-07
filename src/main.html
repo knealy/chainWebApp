@@ -4,22 +4,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
     <title>Main Functionality Page</title>    
     <link rel="stylesheet" href="styles.css">
-    <link rel="preload" href="/assets/chain-logo-min2.png" as="image">
+    <!-- <link rel="preload" href="/assets/chain-logo-min2.png" as="image"> -->
 </head>
-    <body>
-
-        <header>        
+    <body class="main-page">
+        <header>
+     
         </header>    
         <main class="main-functionality">
-
+<!--             
+            <div class="logo-container-chainLinks">
+                <img src="assets/chain-logo-min5.png" alt="Chain Logo">
+            </div>  -->
             <section class="workflow-builder">
-                <div class="logo-container-connectedApis">
+  
+                <!-- <div class="logo-container-connectedApis">
                     <img src="assets/chain-logo-fut2.png" alt="Chain Logo">
-                </div>
+                </div> -->
 
                 <!-- API Integration Container -->
                 <div class="api-integration-container">                
-                    <button class="add-api-button">Add New API</button>                                
+                    <button class="add-api-button">Add New API</button>  
+                                                 
                     <!-- Section for displaying connected APIs -->                
                     <div id="connectedApis" class="connected-apis">                   
                     <h3>Connected APIs</h3>                    
@@ -30,10 +35,9 @@
 
                 <!-- New API Form container -->                           
                 <div id="apiModal" class="modal" style="display: none;">                   
-                    <div class="modal-content">                        
-                        <span class="close-button">&times;</span>                        
+                    <div class="modal-content">                                               
                         <h2>Connect API</h2>                        
-                        <form id="apiForm" class="api-form">                            
+                        <form id="apiForm" class="styled-form">                            
                             <div class="form-group">                                
                                 <label for="apiName">API Name:</label>                                
                                 <input type="text" id="apiName" name="apiName" required>                            
@@ -50,59 +54,59 @@
                                 <label for="webhookUrl">Webhook URL (optional):</label>                                
                                 <input type="text" id="webhookUrl" name="webhookUrl">                            
                             </div>                            
-                            <button id="submit-api-connection" class="submit-api-connection" type="submit">Connect</button>                        
+                            <button id="submit-api-connection" class="submit-api-connection" type="submit">Connect</button>   
+                            <button type="button" onclick="hideApiModal()">Cancel</button>                     
                         </form>                    
                     </div>                
                 </div>                    
             </section>     
 
             <section class="workflow-builder-new">
-                <div class="logo-container-chainLinks">
-                    <img src="assets/chain-logo-fut3.png" alt="Chain Logo">
-                </div>   
                 <!-- Chain Links Container -->
-                <div id="chainLinksContainer" class="chain-links-container">                
+                <div id="chainLinksContainer" class="modal"> 
+                    <button class="add-chain-link-btn">Add New Link</button>                
                     <h3>Chain Links</h3>                    
                     <ul id="chainList">                        
                         <!-- Chain links will be dynamically inserted here -->                    
-                    </ul>                
+                    </ul>    
+                    <!-- New Workflow Form Container -->
+                    <div id="chainLinkForm" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <h2>Add New Chain Link</h2>
+                            <form id="new-chain-link-form" class="styled-form">
+                                <div class="form-group">
+                                    <label for="chainLinkName">Chain Link Name</label>
+                                    <input type="text" id="chainLinkName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="api-select">Select API</label>
+                                    <select id="api-select" required>  <!-- Changed from apiSelect to api-select -->
+                                        <option value="">Choose an API</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-select">Select Trigger</label>
+                                    <select id="event-select" required disabled>  <!-- Changed from triggerSelect to event-select -->
+                                        <option value="">Choose a Trigger</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="action-select">Select Action</label>
+                                    <select id="action-select" required disabled>  <!-- Changed from actionSelect to action-select -->
+                                        <option value="">Choose an Action</option>
+                                    </select>
+                                </div>
+                                <button type="submit">Create Chain Link</button>
+                                <button type="button" onclick="hideChainLinkForm()">Cancel</button>
+                            </form>
+                        </div>            
+                    </div>
                 </div>   
-                <!-- New Workflow Form Container -->
-                <div class="api-integration-container">
-                    <h3>Add Chain Link</h3>
-                    <div class="form-group">
-                        <label for="api-select">Select API:</label>
-                        <select id="api-select">
-                            <option value="">Select an API</option>
-                            <!-- Options will be dynamically populated -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="event-select">Select Trigger:</label>
-                        <select id="event-select">
-                            <option value="">Select a Trigger</option>
-                            <!-- Options will be dynamically populated -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="action-select">Select Action:</label>
-                        <select id="action-select">
-                            <option value="">Select an Action</option>
-                            <!-- Options will be dynamically populated -->
-                        </select>
-                    </div>
-                    <button id="createWorkflowButton">Add Link</button>  
-                </div>
             </section>
-            <!-- Save Workflow Button -->
-                <button class="save-button">Save Workflow</button>    
         </main>
-
-<script>console.log('Starting script loading...');</script>
-<script type="text/javascript" src="functionManager.js" onerror="console.error('Failed to load functionManager.js')" onload="console.log('functionManager.js loaded successfully')"></script>
-<script type="text/javascript" src="app.js" onerror="console.error('Failed to load app.js')" onload="console.log('app.js loaded successfully')"></script>
-<script>console.log('All scripts loaded');</script>
-
-</body>
-
+        <script>console.log('Starting script loading...');</script>
+        <script type="text/javascript" src="functionManager.js" onerror="console.error('Failed to load functionManager.js')" onload="console.log('functionManager.js loaded successfully')"></script>
+        <script type="text/javascript" src="app.js" onerror="console.error('Failed to load app.js')" onload="console.log('app.js loaded successfully')"></script>
+        <script>console.log('All scripts loaded');</script>
+    </body>
 </html>

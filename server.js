@@ -1,5 +1,6 @@
 // server.js
 
+
 require('dotenv').config();
 
 const express = require('express');
@@ -17,11 +18,68 @@ const chainLinks = [];
 const chainReactions = [];
 const apiConnections = [];
 
+
+const cors = require('cors');
+app.use(cors());
+
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+
+app.use((req, res, next) => {
+    console.log('Incoming request:', {
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.originalUrl,
+        body: req.method === 'POST' ? req.body : undefined,
+        params: req.params,
+        query: req.query
+    });
+    next();
+});
+
+app.use('/api-events-actions', limiter);
+
 const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'src')));
 
 // Serve the favicon
 app.use(favicon(path.join(__dirname, 'src', 'favicon.ico')));
+
+app.use((err, req, res, next) => {
+    console.error('Error occurred:', {
+        url: req.originalUrl,
+        method: req.method,
+        error: err.message,
+        stack: err.stack
+    });
+    
+    res.status(500).json({
+        success: false,
+        message: 'Internal Server Error',
+        error: err.message,
+        path: req.originalUrl
+    });
+});
+
+const validateApiId = (req, res, next) => {
+    console.log('Validating API ID at URL:', req.originalUrl);
+    const apiId = parseInt(req.params.apiId);
+    if (isNaN(apiId)) {
+        console.error('Invalid API ID format at URL:', req.originalUrl);
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid API ID format'
+        });
+    }
+    req.apiId = apiId;
+    next();
+};
+
+
 
 async function validateApiConnection(apiUrl, apiKey) {
     try {
@@ -308,33 +366,49 @@ app.post('/connect-api', async (req, res) => {
         });
     }
 });
-// Get available triggers and actions for an API by ID
-app.get('/api-events/:apiId', (req, res) => {
-    console.log('Received request for API events:', req.params.apiId);
-    const apiId = parseInt(req.params.apiId);
+
+
+app.get('/api-events-actions/:apiId', validateApiId, (req, res) => {
+    const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    console.log('Received request for API events and actions:', {
+        url: fullUrl,
+        apiId: req.params.apiId,
+        method: req.method
+    });
     
+    const apiId = parseInt(req.params.apiId);
     const connection = apiConnections.find(api => api.id === apiId);
 
     if (!connection) {
-        console.log('API connection not found for ID:', apiId);
-        return res.json({ 
+        console.error('API connection not found for ID:', {
+            url: fullUrl,
+            apiId: apiId,
+            availableConnections: apiConnections.map(c => c.id)
+        });
+        return res.status(404).json({ 
             success: false, 
             message: 'API connection not found' 
         });
     }
 
+    // Ensure these properties exist
+    const events = connection.availableEvents || [];
+    const actions = connection.availableActions || [];
+
     console.log('Sending response:', { 
+        url: fullUrl,
         success: true, 
-        events: connection.availableEvents, 
-        actions: connection.availableActions 
+        eventsCount: events.length,
+        actionsCount: actions.length
     });
     
     res.json({
         success: true,
-        events: connection.availableEvents,
-        actions: connection.availableActions
+        events,
+        actions
     });
 });
+
 
 // List all connected APIs
 app.get('/api-connections', (req, res) => {
@@ -432,16 +506,38 @@ app.delete('/delete-api/:apiId', (req, res) => {
     }
 });
 
-app.post('/create-chain-link', (req, res) => {
+
+app.post('/create-chain-link', async (req, res) => {
+    console.log('Received create chain link request:', req.body);
+    
     const { name, trigger, action, apiId } = req.body;
+    
+    // Validate required fields
     if (!name || !trigger || !action || !apiId) {
-        return res.json({ 
+        console.error('Missing required fields:', {
+            name: !!name,
+            trigger: !!trigger,
+            action: !!action,
+            apiId: !!apiId
+        });
+        return res.status(400).json({ 
             success: false, 
             message: 'Name, trigger, action, and API ID are required' 
         });
     }
 
     try {
+        // Verify the API exists
+        const api = apiConnections.find(api => api.id === apiId);
+        if (!api) {
+            console.error('API not found:', apiId);
+            return res.status(404).json({
+                success: false,
+                message: 'API connection not found'
+            });
+        }
+
+        // Create the new chain link
         const newChainLink = {
             id: chainLinks.length + 1,
             name,
@@ -454,19 +550,25 @@ app.post('/create-chain-link', (req, res) => {
 
         chainLinks.push(newChainLink);
 
+        console.log('Created new chain link:', newChainLink);
+
         res.json({
             success: true,
             message: 'Chain link created successfully!',
             chainLink: newChainLink
         });
     } catch (error) {
-        console.error('Error creating chain link:', error);
-        res.json({ 
+        console.error('Error creating chain link:', {
+            error: error.message,
+            stack: error.stack
+        });
+        res.status(500).json({ 
             success: false, 
             message: 'Failed to create chain link: ' + error.message 
         });
     }
 });
+
 
 app.get('/chain-links', (req, res) => {
     console.log('Chain links requested');
@@ -529,9 +631,95 @@ app.post('/test-chain/:chainId', async (req, res) => {
         });
     }
 });
+app.post('/create-chain-link', async (req, res) => {
+    console.log('Received create chain link request:', req.body);
+    
+    const { name, trigger, action, apiId } = req.body;
+    
+    // Validate required fields
+    if (!name || !trigger || !action || !apiId) {
+        console.error('Missing required fields:', {
+            name: !!name,
+            trigger: !!trigger,
+            action: !!action,
+            apiId: !!apiId
+        });
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Name, trigger, action, and API ID are required' 
+        });
+    }
 
-// Other existing routes remain the same...
+    try {
+        // Verify the API exists
+        const api = apiConnections.find(api => api.id === apiId);
+        if (!api) {
+            console.error('API not found:', apiId);
+            return res.status(404).json({
+                success: false,
+                message: 'API connection not found'
+            });
+        }
+
+        // Create the new chain link
+        const newChainLink = {
+            id: chainLinks.length + 1,
+            name,
+            trigger,
+            action,
+            apiId,
+            status: 'active',
+            created: new Date().toISOString()
+        };
+
+        chainLinks.push(newChainLink);
+
+        console.log('Created new chain link:', newChainLink);
+
+        res.json({
+            success: true,
+            message: 'Chain link created successfully!',
+            chainLink: newChainLink
+        });
+    } catch (error) {
+        console.error('Error creating chain link:', {
+            error: error.message,
+            stack: error.stack
+        });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to create chain link: ' + error.message 
+        });
+    }
+});
+
+// Add route to list all chain links
+app.get('/chain-links', (req, res) => {
+    console.log('Chain links requested');
+    res.json({ 
+        success: true, 
+        chainLinks 
+    });
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+// 3. Add logging to the catch-all 404 handler
+app.use('*', (req, res) => {
+    console.error('404 Not Found:', {
+        url: req.originalUrl,
+        method: req.method,
+        body: req.body,
+        params: req.params,
+        query: req.query
+    });
+    
+    res.status(404).json({
+        success: false,
+        message: 'Endpoint not found',
+        requestedUrl: req.originalUrl
+    });
 });

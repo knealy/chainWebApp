@@ -5,7 +5,35 @@ function handleError(error, context) {
     alert(`An error occurred in ${context}. Check console for details.`);
 }
 
-// Fetch and display connected APIs
+
+async function makeRequest(url, data) {
+    try {
+        console.log('Making request to:', url, 'with data:', data); // Add logging
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        console.log('Response status:', response.status); // Add logging
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Request failed:', {
+            url,
+            error: error.message,
+            data
+        });
+        throw error;
+    }
+}
 
 // Function to fetch and display connected APIs
 async function fetchAndDisplayApis() {
@@ -136,31 +164,6 @@ async function handleApiFormSubmit(event) {
 }
 
 
-// Standard request handler with error handling
-async function makeRequest(url, data) {
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // Add CSRF token if available
-                ...(document.querySelector('meta[name="csrf-token"]') && {
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-                })
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Request failed:', error);
-        throw error;
-    }
-}
 
 // Form handlers
 async function handleLogin(event) {
@@ -343,52 +346,54 @@ async function updateApiDropdown() {
 }
 
 async function updateEventActionDropdowns(apiId) {
-    try {
-        console.log('Fetching events/actions for API ID:', apiId);
+    const eventSelect = document.getElementById('event-select');
+    const actionSelect = document.getElementById('action-select');
+    
+    if (!eventSelect || !actionSelect) {
+        console.error('Could not find select elements');
+        return;
+    }
 
-        // First get the API connection details
-        const connectionsResponse = await fetch('/api-connections');
-        const connectionsData = await connectionsResponse.json();
+    try {
+        // Set loading state
+        eventSelect.innerHTML = '<option value="">Loading triggers...</option>';
+        actionSelect.innerHTML = '<option value="">Loading actions...</option>';
+        eventSelect.disabled = true;
+        actionSelect.disabled = true;
+
+        // Add debug logging
+        console.log('Fetching events/actions for API ID:', apiId);
+        const url = `/api-events-actions/${apiId}`;
+        console.log('Requesting URL:', url);
+
+        // Fetch events and actions for the selected API
+        const response = await fetch(url);
         
-        // Convert both to numbers for comparison
-        const apiConnection = connectionsData.connections.find(
-            conn => Number(conn.id) === Number(apiId)
-        );
+        // Log response status
+        console.log('Response status:', response.status);
         
-        if (!apiConnection) {
-            console.error(`API connection not found for ID: ${apiId}`);
-            return;
+        // Check if response is OK
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Then fetch events and actions for this API
-        const response = await fetch(`/api-events/${apiConnection.id}`);
-        
-        // Check if response is JSON
         const contentType = response.headers.get('content-type');
+        console.log('Response content-type:', contentType);
+
         if (!contentType || !contentType.includes('application/json')) {
-            console.error('Invalid response type:', contentType);
-            console.error('Response status:', response.status);
-            console.error('Response text:', await response.text());
-            throw new Error('Expected JSON response but got ' + contentType);
+            throw new Error(`Expected JSON but got ${contentType}`);
         }
 
         const data = await response.json();
-        console.log('Received events/actions data:', data);
+        console.log('Received data:', data);
 
-        const eventSelect = document.getElementById('event-select');
-        const actionSelect = document.getElementById('action-select');
-
-        if (!eventSelect || !actionSelect) {
-            console.error('Could not find select elements');
-            return;
-        }
-
-        // Clear existing options
-        eventSelect.innerHTML = '<option value="">Select a Trigger</option>';
-        actionSelect.innerHTML = '<option value="">Select an Action</option>';
-
+        // Reset dropdowns
+        eventSelect.innerHTML = '<option value="">Choose a Trigger</option>';
+        actionSelect.innerHTML = '<option value="">Choose an Action</option>';
+        
         if (data.success) {
-            if (data.events && data.events.length > 0) {
+            // Populate events
+            if (Array.isArray(data.events)) {
                 data.events.forEach(event => {
                     const option = document.createElement('option');
                     option.value = event.id;
@@ -397,7 +402,8 @@ async function updateEventActionDropdowns(apiId) {
                 });
             }
 
-            if (data.actions && data.actions.length > 0) {
+            // Populate actions
+            if (Array.isArray(data.actions)) {
                 data.actions.forEach(action => {
                     const option = document.createElement('option');
                     option.value = action.id;
@@ -405,51 +411,74 @@ async function updateEventActionDropdowns(apiId) {
                     actionSelect.appendChild(option);
                 });
             }
+
+            // Enable dropdowns
+            eventSelect.disabled = false;
+            actionSelect.disabled = false;
+        } else {
+            throw new Error(data.message || 'Failed to load events and actions');
         }
     } catch (error) {
-        console.error('Error updating event/action dropdowns:', error);
+        console.error('Error updating dropdowns:', error);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+        });
         
-        // Set default "error" options
-        const eventSelect = document.getElementById('event-select');
-        const actionSelect = document.getElementById('action-select');
-        
-        if (eventSelect && actionSelect) {
-            eventSelect.innerHTML = '<option value="">Error loading triggers</option>';
-            actionSelect.innerHTML = '<option value="">Error loading actions</option>';
-        }
+        // Set error state
+        eventSelect.innerHTML = '<option value="">Error loading triggers</option>';
+        actionSelect.innerHTML = '<option value="">Error loading actions</option>';
+        eventSelect.disabled = true;
+        actionSelect.disabled = true;
+
+        // Show user-friendly error message
+        const errorMessage = error.message.includes('<!DOCTYPE') 
+            ? 'Server error: API endpoint not responding correctly'
+            : `Error: ${error.message}`;
+        alert(errorMessage);
     }
 }
-
-
 async function handleApiChainEvent(event) {
     event.preventDefault();
+    const chainName = document.getElementById('chainLinkName')?.value.trim();
     const apiId = document.getElementById('api-select')?.value;
-    const eventId = document.getElementById('event-select')?.value;
-    const actionId = document.getElementById('action-select')?.value;
+    const trigger = document.getElementById('event-select')?.value;
+    const action = document.getElementById('action-select')?.value;
+    console.log('Form values:', { chainName, apiId, trigger, action }); // Debug log
 
-    if (!apiId || !eventId || !actionId) {
-        alert('Please select an API, event, and action.');
+    if (!chainName || !apiId || !trigger || !action) {
+        alert('Please fill in all fields.');
         return;
     }
 
     try {
-        const response = await makeRequest('/create-chain', {
+        console.log('Creating chain with:', { // Add logging
+            chainName,
+            apiId,
+            trigger,
+            action
+        });
+
+        const response = await makeRequest('/create-chain-link', {
+            name: chainName,
             apiId: parseInt(apiId),
-            eventId: parseInt(eventId),
-            actionId: parseInt(actionId)
+            trigger,
+            action
         });
 
         if (response.success) {
             alert('Chain reaction created successfully!');
-            if (apiModal) {
-                apiModal.style.display = 'none';
-            }
+            hideChainLinkForm();
+            await fetchAndDisplayChainLinks(); // Refresh the list
         } else {
-            alert('Failed to create chain reaction: ' + response.message);
+            throw new Error(response.message || 'Failed to create chain reaction');
         }
     } catch (error) {
-        console.error('Error creating chain reaction:', error);
-        alert('An error occurred. Please try again later.');
+        console.error('Error creating chain reaction:', {
+            error: error.message,
+            stack: error.stack
+        });
+        alert('An error occurred while creating the chain reaction. Please try again.');
     }
 }
 
@@ -576,6 +605,57 @@ function registerDynamicTriggerAndAction(triggerName, actionName) {
     });
 }
 
+
+function showChainLinkForm() {
+    const chainLinkForm = document.getElementById('chainLinkForm');
+    if (chainLinkForm) {
+        chainLinkForm.style.display = 'block';
+        updateApiDropdown(); 
+    }
+}
+
+function hideChainLinkForm() {
+    const chainLinkForm = document.getElementById('chainLinkForm');
+    if (chainLinkForm) {
+        chainLinkForm.style.display = 'none';
+        // Reset the form
+        const form = document.getElementById('newChainLinkForm');
+        if (form) form.reset();
+    }
+}
+
+function hideApiModal() {
+    const apiModal = document.getElementById('apiModal');
+    if (apiModal) {
+        apiModal.style.display = 'none';
+        const form = document.getElementById('apiForm');
+        if (form) form.reset();
+    }
+}
+
+
+function validateFormValues() {
+    const chainName = document.getElementById('chainLinkName')?.value;
+    const apiId = document.getElementById('api-select')?.value;
+    const trigger = document.getElementById('event-select')?.value;
+    const action = document.getElementById('action-select')?.value;
+
+    console.log('Form values:', {
+        chainName,
+        apiId,
+        trigger,
+        action,
+        elements: {
+            chainNameFound: !!document.getElementById('chainLinkName'),
+            apiSelectFound: !!document.getElementById('api-select'),
+            eventSelectFound: !!document.getElementById('event-select'),
+            actionSelectFound: !!document.getElementById('action-select')
+        }
+    });
+
+    return { chainName, apiId, trigger, action };
+}
+
 // Cleanup function for removing event listeners
 function cleanup() {
     if (loginForm) loginForm.removeEventListener('submit', handleLogin);
@@ -583,6 +663,8 @@ function cleanup() {
     if (newChainButton) newChainButton.removeEventListener('click', handleNewChain);
     if (apiForm) apiForm.removeEventListener('submit', handleApiFormSubmit);
     if (closeButton) closeButton.removeEventListener('click', () => {});
+    if (addChainLinkBtn) addChainLinkBtn.removeEventListener('click', showChainLinkForm);
+    if (chainLinkForm) chainLinkForm.removeEventListener('submit', handleApiChainEvent);
     // Remove window click event listener
     window.removeEventListener('click', () => {});
 }
@@ -623,7 +705,9 @@ document.addEventListener('DOMContentLoaded', () => {
         regEmail: document.getElementById('reg-email'),
         regPassword: document.getElementById('reg-password'),
         username: document.getElementById('username'),
-        password: document.getElementById('password')    
+        password: document.getElementById('password'),    
+        addChainLinkBtn : document.querySelector('.add-chain-link-btn'),
+        chainLinkForm : document.getElementById('new-chain-link-form'),
     };
 
     // Debug log all found elements
@@ -652,7 +736,9 @@ document.addEventListener('DOMContentLoaded', () => {
         regEmail: !!elements.regEmail,
         regPassword: !!elements.regPassword,
         username: !!elements.username,
-        password: !!elements.password
+        password: !!elements.password,
+        addChainLinkBtn : !!elements.addChainLinkBtn,
+        chainLinkForm : !!elements.newChainLinkForm,
     });
 
     // Check if functionManager is available    
@@ -775,6 +861,18 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             handleSaveWorkflow();  // Make sure this function exists
         });
+    }
+    // Add Chain Link button handler
+    if (elements.addChainLinkBtn) {
+        elements.addChainLinkBtn.addEventListener('click', showChainLinkForm);
+    }
+
+    // Chain Link form handler
+    if (elements.chainLinkForm) {
+        console.log('Found chain link form, attaching submit handler');
+        elements.chainLinkForm.addEventListener('submit', handleApiChainEvent);
+    } else {
+        console.error('Chain link form not found');
     }
 
     // Load API keys and dynamic functions from localStorage    

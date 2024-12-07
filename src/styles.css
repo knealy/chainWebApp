@@ -5,7 +5,7 @@
         --secondary-color: #ff8533;
         --background-color: #1a1a1a;
         --card-background: #2d2d2d;
-        --button-hover-color: #ff9c66;
+        --hover-color: #ff9c66;
         --border-color: #ff6b00;
         --input-background: #404040;
         --input-border: #666;
@@ -21,64 +21,74 @@
     /* Import specialized fonts */
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Roboto:wght@400;500&display=swap');
     
-    /* body {
-        font-family: var(--font-primary);
-        background-color: var(--background-color);
-        background-image: url('../assets/chain-logo-min8.png'), linear-gradient(135deg, rgba(255,107,0,0.1) 25%, transparent 25%), linear-gradient(225deg, rgba(255,107,0,0.1) 25%, transparent 25%), linear-gradient(45deg, rgba(255,107,0,0.1) 25%, transparent 25%);
-        /* background-repeat: repeat, no-repeat, no-repeat, no-repeat;
-        background-position: center, top right, bottom left, center;
-        background-size: 100px, 200px 200px, 200px 200px, cover;
-        background-repeat: repeat, no-repeat, no-repeat, no-repeat;
-        background-position: right center, top right, bottom left, center;
-        background-size: 300px, 800px 800px, 800px 800px, cover;
-        color: var(--text-color);
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        position: relative;
-        overflow-x: hidden;
-    } 
-    */
-    
-    /* body {
-        font-family: var(--font-primary);
-        background-color: var(--background-color);
-        background-image: url('../assets/chain-logo-min3.png');
-        background-repeat: no-repeat;
-        background-position: top right; 
-        background-size: 350px;    
-        color: var(--text-color);
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        position: relative;
-        overflow-x: hidden;
-    } */
 
-    body {
+    /* Style for index page */
+    body.index-page {
         margin: 0;
         min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        background-image: url('../assets/chain-logo-min3.png');
+        background-image: url('../assets/grad-bg2.png');
         background-size: cover;
-        background-position: bottom center;
+        background-position: center;
         background-repeat: no-repeat;
-        font-family: Arial, sans-serif;
+        font-family: var(--font-primary);
     }
 
+    /* Style for main page */
+    body.main-page {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        /* justify-content: center;
+        align-items: center; */
+        justify-content: flex-start;
+        align-items: flex-start;
+        background-image: url('../assets/grad-bg2.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-family: var(--font-primary);
+        padding: 20px; 
+    }
+    
+
+    /* Main functionality container */
+    .main-functionality {
+        width: min-content;
+        min-width: 320px;
+        max-width: 90%;
+        /* margin: 2rem auto; */
+        margin: 2rem; 
+        padding: 2rem;
+        background: var(--card-background);
+        background-image: url('../assets/grad-bg4.png');    
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border: 2px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    }
+    
+    .main-functionality:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+    }
+    /* Update the logo containers to ensure they stay in place */
     .logo-container-connectedApis {
-        position: absolute;
+        position: fixed;
         right: 10px;
         top: 20px;
         width: 120px;
         height: 120px;
         opacity: 0.95;
-        z-index: 7;
+        z-index: 1000; /* Increase z-index to ensure it stays above other elements */
         animation: rotateLogo 20s linear infinite;
+        pointer-events: none; /* This prevents the logo from intercepting hover events */
     }
-    
     .logo-container-connectedApis img {
         width: 100%;
         height: 100%;
@@ -93,48 +103,29 @@
     
     
     .logo-container-chainLinks {
-        position: absolute;
-        right: 10px;
-        top: 20px;
-        width: 120px;
-        height: 120px;
+        position: fixed;
+        left: 10px;
+        top: 10px;
+        width: 210px;
+        height: 210px;
         opacity: 0.95;
-        z-index: 7;
+        z-index: 1000; /* Increase z-index to ensure it stays above other elements */
         animation: rotateLogo 20s linear infinite;
+        pointer-events: none; /* This prevents the logo from intercepting hover events */
     }
     
     .logo-container-chainLinks img {
         width: 100%;
         height: 100%;
         object-fit: contain;
-        border-radius: 77px;
+        border-radius: 133px;
         transition: transform var(--transition-speed);
     }
     
     .logo-container-chainLinks img:hover {
-        transform: scale(1.1);
-    }
-    
-
-    /* Main functionality container */
-    .main-functionality {
-
-        width: min-content;
-        min-width: 320px;
-        max-width: 90%;
-        margin: 2rem auto;
-        padding: 2rem;
-        background: var(--card-background);
-        border: 2px solid var(--border-color);
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
-    }
-    
-    .main-functionality:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
     }
+
     
     .workflow-builder {
         position: relative;
@@ -143,7 +134,9 @@
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1.5rem;
         animation: fadeIn 1s ease-in-out;
+        /* Remove margin-top: 100px; */
     }
+    
 
     .workflow-builder-new {
         position: relative;
@@ -153,10 +146,10 @@
         position: absolute;
         top: 2px;
         right: 2px;
-    }
-    .chain-links-container, 
+    } 
     .api-integration-container {
-        background: var(--card-background) url('../assets/chain-logo-min3.png') center center;
+        background: var(--card-background);
+        background-image: url('../assets/flame-chain-cyb4.png');
         background-size: cover;  /* or cover, depending on your needs */
         background-repeat: no-repeat;
         background-blend-mode: normal;  /* This helps blend the image with the background color */
@@ -169,14 +162,47 @@
         border-radius: 16px;
         transition: background 0.5s ease;
     }
-    
+
+    .chain-links-container {
+        background: var(--card-background);
+        background-image: url('../assets/flame-chain-cyb5.png');
+        background-size: cover;  /* or cover, depending on your needs */
+        background-repeat: no-repeat;
+        background-blend-mode: normal;  /* This helps blend the image with the background color */
+        /* background: #333; */
+        border-left: 5px solid var(--border-color);
+        border-bottom: 3px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 16px;
+        transition: background 0.5s ease;
+    }
+    .add-chain-link-container {
+        background: var(--card-background);
+        background-image: url('../assets/flame-chain-cyb9.png');
+        background-size: cover;  /* or cover, depending on your needs */
+        background-repeat: no-repeat;
+        background-blend-mode: normal;  /* This helps blend the image with the background color */
+        /* background: #333; */
+        border-left: 5px solid var(--border-color);
+        border-bottom: 3px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 16px;
+        transition: background 0.5s ease;
+    } 
     .chain-links-container:hover, 
     .api-integration-container:hover {
-        background: #3a3a3a;
+        background-image: url('../assets/flame-chain-cyb10.png');
     }
     
     .chain-list-item {
         background: #404040;
+        background-image: url('../assets/grad-bg1.png');
+        background-size: cover;
+        background-repeat: no-repeat;
         border-left: 4px solid var(--secondary-color);
         padding: 1rem;
         margin: 0.5rem 0;
@@ -192,26 +218,6 @@
         background: #4a4a4a;
     }
     
-    /* Fire-themed buttons with interactive animations */
-    /* button {
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1rem;
-        white-space: nowrap;
-        transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    } */
-    
-    /* button:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
-    } */
-    
     
     .form-group label {
         display: block;
@@ -221,7 +227,8 @@
     }
     
     select {
-        background: var(--input-background);
+        /* background: var(--input-background);     */
+        background-image: url('../assets/grad-bg3.png');
         border: 1px solid var(--input-border);
         color: var(--text-color);
         padding: 0.6rem;
@@ -233,9 +240,10 @@
     }
     
     select:focus {
+        background-image: url('../assets/grad-bg3.png');
         border-color: var(--secondary-color);
         outline: none;
-        background: #505050;
+        /* background: #505050; */
     }
     
     /* Status indicators with subtle animations */
@@ -276,9 +284,6 @@
     .chain-delete-btn:hover {
         background-color: #e60000;
     }
-
-
-
 
     .container {
         display: flex;
