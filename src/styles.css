@@ -1,420 +1,392 @@
-/* Basic reset and styling for the body */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: hwb(0 26% 38% / 0.764);
-    color: whitesmoke;
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
-}
+    /* // Start of Selection */
+    /* Base theme with fire and chain reaction aesthetics */
+    :root {
+        --primary-color: #ff6b00;
+        --secondary-color: #ff8533;
+        --background-color: #1a1a1a;
+        --card-background: #2d2d2d;
+        --button-hover-color: #ff9c66;
+        --border-color: #ff6b00;
+        --input-background: #404040;
+        --input-border: #666;
+        --text-color: #f5f5f5;
+        --inactive-color: #666;
+        --active-color: #ff6b00;
+        --delete-button-color: #cc0000;
+        --font-primary: 'Montserrat', sans-serif;
+        --font-secondary: 'Roboto', sans-serif;
+        --transition-speed: 0.3s;
+    }
+    
+    /* Import specialized fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Roboto:wght@400;500&display=swap');
+    
+    /* body {
+        font-family: var(--font-primary);
+        background-color: var(--background-color);
+        background-image: url('../assets/chain-logo-min8.png'), linear-gradient(135deg, rgba(255,107,0,0.1) 25%, transparent 25%), linear-gradient(225deg, rgba(255,107,0,0.1) 25%, transparent 25%), linear-gradient(45deg, rgba(255,107,0,0.1) 25%, transparent 25%);
+        /* background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+        background-position: center, top right, bottom left, center;
+        background-size: 100px, 200px 200px, 200px 200px, cover;
+        background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+        background-position: right center, top right, bottom left, center;
+        background-size: 300px, 800px 800px, 800px 800px, cover;
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    } 
+    */
+    
+    /* body {
+        font-family: var(--font-primary);
+        background-color: var(--background-color);
+        background-image: url('../assets/chain-logo-min3.png');
+        background-repeat: no-repeat;
+        background-position: top right; 
+        background-size: 350px;    
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    } */
 
-.account-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 1rem;
-}
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: url('../assets/chain-logo-min3.png');
+        background-size: cover;
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        font-family: Arial, sans-serif;
+    }
 
-.saved-chains {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
+    .logo-container-connectedApis {
+        position: absolute;
+        right: 10px;
+        top: 20px;
+        width: 120px;
+        height: 120px;
+        opacity: 0.95;
+        z-index: 7;
+        animation: rotateLogo 20s linear infinite;
+    }
+    
+    .logo-container-connectedApis img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 77px;
+        transition: transform var(--transition-speed);
+    }
+    
+    .logo-container-connectedApis img:hover {
+        transform: scale(1.1);
+    }
+    
+    
+    .logo-container-chainLinks {
+        position: absolute;
+        right: 10px;
+        top: 20px;
+        width: 120px;
+        height: 120px;
+        opacity: 0.95;
+        z-index: 7;
+        animation: rotateLogo 20s linear infinite;
+    }
+    
+    .logo-container-chainLinks img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 77px;
+        transition: transform var(--transition-speed);
+    }
+    
+    .logo-container-chainLinks img:hover {
+        transform: scale(1.1);
+    }
+    
 
-.saved-chains div {
-    padding: 1rem;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+    /* Main functionality container */
+    .main-functionality {
 
-.new-chain-button {
-    display: block;
-    margin: 1rem auto;
-    padding: 1rem;
-    background-color: #28a745;
-    color: white;
-    text-align: center;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-}
+        width: min-content;
+        min-width: 320px;
+        max-width: 90%;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--card-background);
+        border: 2px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    }
+    
+    .main-functionality:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+    }
+    
+    .workflow-builder {
+        position: relative;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        animation: fadeIn 1s ease-in-out;
+    }
 
-.new-chain-button:hover {
-    background-color: #218838;
-}
-
-.main-functionality {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.connected-apis {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #f1f1f1;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.connected-apis h3 {
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-
-.connected-apis ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.connected-apis li {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.connected-apis select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-
-.workflow-builder {
-    margin: 1rem 0;
-}
-
-.workflow-builder .add-api-event {
-    padding: 0.8rem 1rem;
-    background-color: #17a2b8;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-}
-
-.workflow-builder .add-api-event:hover {
-    background-color: #117a8b;
-}
-
-.workflow-builder .logic-fields {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 1rem 0;
-}
-
-.workflow-builder .logic-fields input {
-    width: calc(50% - 1rem);
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.save-button {
-    display: block;
-    margin: 1rem auto;
-    padding: 0.8rem 2rem;
-    background-color: #ffc107;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-.save-button:hover {
-    background-color: #e0a800;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mt-1 {
-    margin-top: 1rem;
-}
-
-.mb-1 {
-    margin-bottom: 1rem;
-}
-
-/* Styling for the login and registration containers */
-.login-container {
-    max-width: 400px;
-    margin: 2rem auto;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Styling for the form elements */
-h1, h2, h3 {
-    font-weight: bold;
-    color: #222;
-    margin-bottom: 1rem;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-label {
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.login-container input[type="text"],
-.login-container input[type="password"] {
-    width: 100%;
-    padding: 0.8rem;
-    margin: 0.5rem 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.login-container button {
-    width: 100%;
-    padding: 0.8rem;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.login-container button:hover {
-    background-color: #0056b3;
-}
-
-.error-message {
-    color: red;
-    font-size: 14px;
-    margin-top: -10px;
-    margin-bottom: 10px;
-    text-align: left;
-}
-
-/* Styling for the new chain reaction modal */
-.modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.modal-content input[type="text"],
-.modal-content input[type="password"],
-.modal-content select {
-    width: 100%;
-    padding: 0.8rem;
-    margin: 0.5rem 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Ensure padding doesn't affect total width */
-}
-
-.modal-content button {
-    width: 100%;
-    padding: 0.8rem;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease; /* Smooth transition for hover */
-}
-
-.modal-content button:hover {
-    background-color: #218838;
-}
-
-/* Style for the close button in the modal */
-.close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.api-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.api-name {
-    font-weight: bold;
-}
-
-.api-status {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-}
-
-.api-status.active {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.api-status.inactive {
-    background-color: #f44336;
-    color: white;
-}
-
-.api-controls {
-    display: flex;
-    gap: 10px;
-}
-
-.api-action-select {
-    padding: 5px;
-}
-
-.api-action-btn {
-    padding: 5px 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.api-action-btn:hover {
-    background-color: #45a049;
-}
+    .workflow-builder-new {
+        position: relative;
+    }
+    
+    .workflow-builder-new .logo-container-chainLinks {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+    }
+    .chain-links-container, 
+    .api-integration-container {
+        background: var(--card-background) url('../assets/chain-logo-min3.png') center center;
+        background-size: cover;  /* or cover, depending on your needs */
+        background-repeat: no-repeat;
+        background-blend-mode: normal;  /* This helps blend the image with the background color */
+        /* background: #333; */
+        border-left: 5px solid var(--border-color);
+        border-bottom: 3px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 16px;
+        transition: background 0.5s ease;
+    }
+    
+    .chain-links-container:hover, 
+    .api-integration-container:hover {
+        background: #3a3a3a;
+    }
+    
+    .chain-list-item {
+        background: #404040;
+        border-left: 4px solid var(--secondary-color);
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform var(--transition-speed), background var(--transition-speed);
+    }
+    
+    .chain-list-item:hover {
+        transform: scale(1.02);
+        background: #4a4a4a;
+    }
+    
+    /* Fire-themed buttons with interactive animations */
+    /* button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        white-space: nowrap;
+        transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    } */
+    
+    /* button:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+    } */
+    
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        font-family: var(--font-secondary);
+    }
+    
+    select {
+        background: var(--input-background);
+        border: 1px solid var(--input-border);
+        color: var(--text-color);
+        padding: 0.6rem;
+        border-radius: 10px;
+        width: 100%;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color var(--transition-speed), background var(--transition-speed);
+    }
+    
+    select:focus {
+        border-color: var(--secondary-color);
+        outline: none;
+        background: #505050;
+    }
+    
+    /* Status indicators with subtle animations */
+    .api-status.active, .chain-status.active {
+        background-color: var(--active-color);
+        color: white;
+        padding: 0.3rem 0.7rem;
+        border-radius: 12px;
+        animation: pulse 2s infinite;
+    }
+    
+    .api-status.inactive, .chain-status.inactive {
+        background-color: var(--inactive-color);
+        color: white;
+        padding: 0.3rem 0.7rem;
+        border-radius: 12px;
+    }
+    
+    /* Chain controls with enhanced button styles */
+    .chain-controls button {
+        margin-left: 0.5rem;
+    }
+    
+    .chain-test-btn {
+        background-color: var(--primary-color);
+        transition: background-color var(--transition-speed);
+    }
+    
+    .chain-test-btn:hover {
+        background-color: var(--secondary-color);
+    }
+    
+    .chain-delete-btn {
+        background-color: var(--delete-button-color);
+        transition: background-color var(--transition-speed);
+    }
+    
+    .chain-delete-btn:hover {
+        background-color: #e60000;
+    }
 
 
-.chain-links-container {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #f1f1f1;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
-.chain-links-container h3 {
-    margin-bottom: 0.5rem;
-    color: #333;
-}
 
-.chain-links-container ul {
-    list-style-type: none;
-    padding: 0;
-}
-.chain-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    margin: 10px 0;
-    background: #f5f5f5;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    .container {
+        display: flex;
+        gap: 2rem;
+        padding: 2rem;
+    }
 
-.chain-name {
-    font-weight: bold;
-    font-size: 1.1em;
-}
+    .card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-.chain-details {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-size: 0.9em;
-    color: #666;
-}
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
 
-.chain-status {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-}
+    .inner-card {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
 
-.chain-status.active {
-    background-color: #4CAF50;
-    color: white;
-}
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-.chain-status.inactive {
-    background-color: #f44336;
-    color: white;
-}
+    .styled-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
 
-.chain-controls {
-    display: flex;
-    gap: 8px;
-}
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
 
-.chain-controls button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
+    input {
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+    }
 
-.chain-delete-btn {
-    background-color: #f44336;
-    color: white;
-}
+    input:focus {
+        border-color: #007bff;
+        outline: none;
+    }
 
-.chain-test-btn {
-    background-color: #2196F3;
-    color: white;
-}
+    button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+    }
+        
+    /* Keyframes for animations */
+    @keyframes rotateLogo {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 5px var(--active-color);
+        }
+        50% {
+            box-shadow: 0 0 15px var(--active-color);
+        }
+        100% {
+            box-shadow: 0 0 5px var(--active-color);
+        }
+    }

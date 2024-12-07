@@ -240,6 +240,10 @@ app.post('/register', async (req, res) => {
     }
 });
 
+app.get('/main', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'main.html'));
+});
+
 
 // Route to handle login requests
 app.post('/login', async (req, res) => {

@@ -4,13 +4,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
     <title>Main Functionality Page</title>    
     <link rel="stylesheet" href="styles.css">
+    <link rel="preload" href="/assets/chain-logo-min2.png" as="image">
 </head>
-    <body>    
+    <body>
+
         <header>        
         </header>    
         <main class="main-functionality">
-            
+
             <section class="workflow-builder">
+                <div class="logo-container-connectedApis">
+                    <img src="assets/chain-logo-fut2.png" alt="Chain Logo">
+                </div>
+
+                <!-- API Integration Container -->
                 <div class="api-integration-container">                
                     <button class="add-api-button">Add New API</button>                                
                     <!-- Section for displaying connected APIs -->                
@@ -19,9 +26,10 @@
                     <ul id="apiList">                        
                         <!-- API items will be dynamically inserted here -->                    
                     </ul>                
-                </div>                
-                <!-- Adding New API Form-->                           
-                <div id="apiModal" class="modal" style="display: none;">                    
+                </div>    
+
+                <!-- New API Form container -->                           
+                <div id="apiModal" class="modal" style="display: none;">                   
                     <div class="modal-content">                        
                         <span class="close-button">&times;</span>                        
                         <h2>Connect API</h2>                        
@@ -46,16 +54,22 @@
                         </form>                    
                     </div>                
                 </div>                    
-            </section>       
+            </section>     
+
             <section class="workflow-builder-new">
-                <div id="chainLinksContainer" class="chain-links-container">                   
+                <div class="logo-container-chainLinks">
+                    <img src="assets/chain-logo-fut3.png" alt="Chain Logo">
+                </div>   
+                <!-- Chain Links Container -->
+                <div id="chainLinksContainer" class="chain-links-container">                
                     <h3>Chain Links</h3>                    
                     <ul id="chainList">                        
                         <!-- Chain links will be dynamically inserted here -->                    
                     </ul>                
                 </div>   
+                <!-- New Workflow Form Container -->
                 <div class="api-integration-container">
-                    <h3>New Workflow</h3>
+                    <h3>Add Chain Link</h3>
                     <div class="form-group">
                         <label for="api-select">Select API:</label>
                         <select id="api-select">
@@ -80,8 +94,9 @@
                     <button id="createWorkflowButton">Add Link</button>  
                 </div>
             </section>
-    <button class="save-button">Save Workflow</button>    
-</main>
+            <!-- Save Workflow Button -->
+                <button class="save-button">Save Workflow</button>    
+        </main>
 
 <script>console.log('Starting script loading...');</script>
 <script type="text/javascript" src="functionManager.js" onerror="console.error('Failed to load functionManager.js')" onload="console.log('functionManager.js loaded successfully')"></script>
@@ -89,4 +104,5 @@
 <script>console.log('All scripts loaded');</script>
 
 </body>
+
 </html>
