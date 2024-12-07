@@ -148,6 +148,7 @@ async function handleApiFormSubmit(event) {
              // Refresh the list automatically
             await fetchAndDisplayApis(); // Ensure the list is refreshed
             console.log('Updated API connections:', response.connections); // Log updated connections
+            document.body.classList.remove('modal-open'); // Remove class when modal is closed
             elements.apiModal.style.display = 'none';
             event.target.reset(); // Clear the form
         } else {
@@ -782,6 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const apiModal = elements.apiModal;
                 if (apiModal) {
                     apiModal.style.display = 'block';
+                    document.body.classList.add('modal-open'); // Add class when modal is open
                 }
             } catch (error) {
                 handleError(error, 'Add API button click');
@@ -793,6 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.closeButton.addEventListener('click', (e) => {
             e.preventDefault();
             console.log('Close button clicked');
+            document.body.classList.remove('modal-open'); // Remove class when modal is closed
             apiModal.style.display = 'none';
         });
     }

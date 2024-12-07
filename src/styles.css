@@ -78,6 +78,14 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
     }
 
+    /* Disable animations when a modal is open */
+    body.modal-open .main-functionality:hover,
+    body.modal-open .api-integration-container:hover,
+    body.modal-open .chain-links-container:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
     .modal {
         display: none;
         position: fixed;
@@ -193,6 +201,13 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         background-image: url('../assets/flame-chain-cyb10.png');
     }
+
+    /* Disable animations when a modal is open */
+    body.modal-open .api-integration-container:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
     .chain-links-container {
         background: var(--card-background);
         background-image: url('../assets/flame-chain-cyb5.png');
@@ -212,6 +227,12 @@
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         background-image: url('../assets/flame-chain-cyb10.png');
+    }
+
+    /* Disable animations when a modal is open */
+    body.modal-open .chain-links-container:hover {
+        transform: none;
+        box-shadow: none;
     }
 
     /* Style the headings */
