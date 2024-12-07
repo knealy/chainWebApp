@@ -8,7 +8,7 @@ const path = require('path');
 const UserModel = require('./src/userModel');
 const bcrypt = require('bcrypt');
 const axios = require('axios'); // Add axios for making API calls
-const favicon = require('serve-favicon');
+// const favicon = require('serve-favicon');
 const app = express();
 app.use(express.json());
 
@@ -47,7 +47,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'src')));
 
 // Serve the favicon
-app.use(favicon(path.join(__dirname, 'src', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname, 'src', 'favicon.ico')));
 
 app.use((err, req, res, next) => {
     console.error('Error occurred:', {
