@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="index-page">
+    <main class="main-functionality">
+        
     <div class="container">
+        <div class="chain-logo"></div>
+        <button id="registerLink" class="auth-nav-button">Register</button>
+        <button id="loginLink" class="auth-nav-button">Login</button>
         <div class="card login-container">
             <div class="inner-card">
                 <h1>Login</h1>
@@ -45,6 +50,17 @@
     </div>
     <script src="app.js"></script>
     <script>
+        document.getElementById('loginLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelector('.login-container').classList.add('active');
+            document.querySelector('.registration-container').classList.remove('active');
+        });
+
+        document.getElementById('registerLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelector('.registration-container').classList.add('active');
+            document.querySelector('.login-container').classList.remove('active');
+        });
         document.getElementById('login-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const username = document.getElementById('username').value;
@@ -71,5 +87,6 @@
             });
         });
     </script>
+    </main>
 </body>
 </html>
