@@ -11,10 +11,10 @@
      
         </header>    
         <main class="main-functionality">
-<!--             
+            
             <div class="logo-container-chainLinks">
-                <img src="assets/chain-logo-min5.png" alt="Chain Logo">
-            </div>  -->
+                <!-- <img src="assets/chain-logo-min3.png" alt="Chain Logo"> -->
+            </div> 
             <section class="workflow-builder">
   
                 <!-- <div class="logo-container-connectedApis">
@@ -23,11 +23,11 @@
 
                 <!-- API Integration Container -->
                 <div class="api-integration-container">                
-                    <button class="add-api-button">Add New API</button>  
+                    <button class="add-api-button">New API</button>  
                                                  
                     <!-- Section for displaying connected APIs -->                
                     <div id="connectedApis" class="connected-apis">                   
-                    <h3>Connected APIs</h3>                    
+                    <h2>Connected APIs</h2>                    
                     <ul id="apiList">                        
                         <!-- API items will be dynamically inserted here -->                    
                     </ul>                
@@ -62,16 +62,21 @@
             </section>     
 
             <section class="workflow-builder-new">
-                <!-- Chain Links Container -->
-                <div id="chainLinksContainer" class="chain-links-container"> 
-                    <button class="add-chain-link-btn">Add New Link</button>
-                    <button class="combine-chain-links-btn">Combine Links</button> <!-- New button for combining links -->
+
+                <div class="chain-links-container">
+                    <button class="add-chain-link-btn">New Chain Link</button>
                     <h3>Chain Links</h3>
-                                       
-                    <ul id="chainList">                        
-                        <!-- Chain links will be dynamically inserted here -->                    
-                    </ul>    
-                    <!-- New Workflow Form Container -->
+                    <ul id="chainList">
+                        <li class="chain-list-item">
+                            <input type="checkbox" class="chain-checkbox" data-id="1">
+                            <span class="chain-name">Chain Link 1</span>
+                            <!-- ... other chain link details ... -->
+                        </li>
+                        <!-- Additional chain links will be dynamically inserted here -->
+                    </ul>
+                    <button class="combineChainsButton">New Chain Reaction</button>
+                
+
                     <div id="chainLinkForm" class="modal" style="display: none;">
                         <div class="modal-content">
                             <h2>Add New Chain Link</h2>
@@ -102,6 +107,23 @@
                                 <button type="button" onclick="hideChainLinkForm()">Cancel</button>
                             </form>
                         </div>            
+                    </div>
+                </div>
+                <div class="combined-chains-container">
+                    <h2>Chain Reactions</h2>
+                    <div class="combined-chains-list">
+                        <ul id="combinedChainsList">
+                            <!-- Combined chain items will be dynamically inserted here -->
+                            <!-- Example structure:
+                            <li class="combined-chain-item">
+                                <span class="chain-name">Combined Workflow 1</span>
+                                <div class="chain-controls">
+                                    <button class="chain-test-btn" data-id="1">Test</button>
+                                    <button class="chain-delete-btn" data-id="1">Delete</button>
+                                </div>
+                            </li>
+                            -->
+                        </ul>
                     </div>
                 </div>   
             </section>

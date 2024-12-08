@@ -37,71 +37,150 @@ async function fetchAndDisplayApis() {
     try {
         const response = await fetch('/api-connections');
         const data = await response.json();
-        console.log('Fetched API Connections:', data); // Debugging line
         const apiList = document.getElementById('apiList');
-        const apiSelect = document.getElementById('api-select');
         
-        if (!apiList || !apiSelect) {
-            console.error('Required DOM elements not found');
+        if (!apiList) {
+            console.error('API list element not found');
             return;
         }
 
-        // Clear existing lists
+        // Clear existing items
         apiList.innerHTML = '';
-        apiSelect.innerHTML = '<option value="">Select an API</option>';
 
-        // Check if we have valid connections
-        if (data.connections && Array.isArray(data.connections) && data.connections.length > 0) {
-            data.connections.forEach(connection => {
-                const listItem = document.createElement('li');
-                listItem.className = 'api-list-item';
-                
-                listItem.innerHTML = `
-                    <span class="api-name">${connection.name || 'Unnamed API'}</span>
-                    <span class="api-url">${connection.apiUrl || 'No URL'}</span>
-                    <span class="api-status ${connection.status || 'unknown'}">${connection.status || 'unknown'}</span>
-                    <div class="api-controls">
-                        <select class="api-action-select">
-                            <option value="">Select Action</option>
-                            <option value="test">Test Connection</option>
-                            <option value="edit">Edit</option>
-                            <option value="delete">Delete</option>
-                        </select>
-                        <button class="api-action-btn">Execute</button>
-                    </div>
-                `;
+        if (data.connections && Array.isArray(data.connections)) {
+            if (data.connections.length > 0) {
+                data.connections.forEach(connection => {
+                    const shortenedUrl = shortenUrl(connection.apiUrl);
+                    
+                    const listItem = document.createElement('li');
+                    listItem.className = 'api-item';
+                    
+                    listItem.innerHTML = `
+                        <input type="checkbox" 
+                            class="chain-checkbox" 
+                            data-id="${connection.id}"
+                            title="Select this API for chain linking">
+                        <span class="api-name" 
+                            title="API Name: ${connection.name}">${connection.name}</span>
+                        <span class="api-details">
+                            <span class="api-url" 
+                                title="Full URL: ${connection.apiUrl}">URL: ${shortenedUrl}</span>
+                        </span>
+                        <span class="api-status ${connection.active ? 'active' : 'inactive'}"
+                            title="${connection.active ? 'API is currently active' : 'API is currently inactive'}">
+                            ${connection.active ? 'Active' : 'Inactive'}
+                        </span>
+                        <div class="api-controls">
+                            <button class="api-test-btn" 
+                                data-id="${connection.id}"
+                                title="Test the connection to this API">Test</button>
+                            <button class="api-delete-btn" 
+                                data-id="${connection.id}"
+                                title="Delete this API connection">Delete</button>
+                        </div>
+                    `;
 
-                // Add event listeners
-                const actionBtn = listItem.querySelector('.api-action-btn');
-                const actionSelect = listItem.querySelector('.api-action-select');
-                
-                if (actionBtn && actionSelect) {
-                    actionBtn.addEventListener('click', () => {
-                        const selectedAction = actionSelect.value;
-                        if (selectedAction) {
-                            handleApiAction(connection.id, selectedAction);
-                        }
-                    });
-                }
+                    // Add event listeners for buttons
+                    const deleteBtn = listItem.querySelector('.api-delete-btn');
+                    const testBtn = listItem.querySelector('.api-test-btn');
+                    
+                    deleteBtn.addEventListener('click', () => deleteApiConnection(connection.id));
+                    testBtn.addEventListener('click', () => testApiConnection(connection.id));
 
-                apiList.appendChild(listItem);
+                    apiList.appendChild(listItem);
+                });
+            } else {
+                apiList.innerHTML = '<li class="no-apis">No API connections available</li>';
+            }
 
-                // Add option to api-select dropdown
-                const option = document.createElement('option');
-                option.value = connection.id;
-                option.textContent = `${connection.name} (${connection.apiUrl})`; // Ensure 'apiUrl' is used
-                apiSelect.appendChild(option);
-            });
+            // Add tooltips to the container buttons
+            const addApiButton = document.querySelector('.add-api-button');
+            if (addApiButton) {
+                addApiButton.title = "Add a new API connection";
+            }
+
+            const combineChainsButton = document.querySelector('.combineChainsButton');
+            if (combineChainsButton) {
+                combineChainsButton.title = "Combine selected chain links into a workflow";
+            }
+
+            const addChainLinkBtn = document.querySelector('.add-chain-link-btn');
+            if (addChainLinkBtn) {
+                addChainLinkBtn.title = "Create a new chain link using connected APIs";
+            }
+
+            // Add tooltips to form elements
+            const apiNameInput = document.getElementById('apiName');
+            if (apiNameInput) {
+                apiNameInput.title = "Enter a descriptive name for this API connection";
+            }
+
+            const apiUrlInput = document.getElementById('apiUrl');
+            if (apiUrlInput) {
+                apiUrlInput.title = "Enter the base URL for the API (e.g., api.example.com)";
+            }
+
+            const apiKeyInput = document.getElementById('apiKey');
+            if (apiKeyInput) {
+                apiKeyInput.title = "Enter your API authentication key";
+            }
+
+            const webhookUrlInput = document.getElementById('webhookUrl');
+            if (webhookUrlInput) {
+                webhookUrlInput.title = "Optional: Enter a webhook URL for API callbacks";
+            }
+
+            // Add tooltips to select elements
+            const apiSelect = document.getElementById('api-select');
+            if (apiSelect) {
+                apiSelect.title = "Select an API to use for this chain link";
+            }
+
+            const eventSelect = document.getElementById('event-select');
+            if (eventSelect) {
+                eventSelect.title = "Select a trigger event for this chain link";
+            }
+
+            const actionSelect = document.getElementById('action-select');
+            if (actionSelect) {
+                actionSelect.title = "Select an action to perform when triggered";
+            }
+
         } else {
-            console.warn('No valid API connections found:', data);
-            apiList.innerHTML = '<li>No API connections available</li>';
+            console.warn('Invalid data format received:', data);
+            apiList.innerHTML = '<li class="error">Failed to load API connections</li>';
         }
     } catch (error) {
         console.error('Error fetching API connections:', error);
-        alert('Failed to fetch API connections. Please try again.');
+        if (apiList) {
+            apiList.innerHTML = '<li class="error">Failed to load API connections</li>';
+        }
     }
 }
 
+// Helper function to shorten URLs
+function shortenUrl(url) {
+    try {
+        // Remove protocol (http:// or https://)
+        let shortened = url.replace(/^(https?:\/\/)/, '');
+        
+        // Remove www. if present
+        shortened = shortened.replace(/^www\./, '');
+        
+        // Remove trailing slash
+        shortened = shortened.replace(/\/$/, '');
+        
+        // If URL is still too long, truncate it
+        if (shortened.length > 30) {
+            shortened = shortened.substring(0, 27) + '...';
+        }
+        
+        return shortened;
+    } catch (error) {
+        console.error('Error shortening URL:', error);
+        return url; // Return original URL if there's an error
+    }
+}
 
 async function testApiConnection(apiId) {
     try {
@@ -338,43 +417,6 @@ function listDynamicFunctions() {
     return [...dynamicFunctions]; // Return a copy to prevent direct manipulation
 }
 
-
-//     // Add new API connection handling
-// async function handleNewApiConnection() {
-//     const apiName = prompt('Enter a name for this API connection:');
-//     if (!apiName) return;
-
-//     const apiUrl = prompt('Enter the API URL:');
-//     if (!apiUrl) return;
-
-//     const apiKey = prompt('Enter the API key:');
-//     if (!apiKey) return;
-
-//     const webhookUrl = prompt('Enter webhook URL (optional):');
-
-//     try {
-//         const response = await makeRequest('/connect-api', {
-//             apiName,
-//             apiUrl,
-//             apiKey,
-//             webhookUrl
-//         });
-
-//         if (response.success) {
-//             alert('API connected successfully!');
-//             updateApiDropdown();
-//         } else {
-//             alert('Failed to connect API: ' + response.message);
-//         }
-//     } catch (error) {
-//         console.error('Error connecting API:', error);
-//         alert('An error occurred while connecting to the API.');
-//     }
-
-//     if (apiModal) {
-//         apiModal.style.display = 'none';
-//     }
-// }
 
 async function handleNewApiConnection(event) {
     event.preventDefault();
@@ -665,7 +707,7 @@ function validateAndFormatApiUrl(url) {
     }
 }
 
-// Add this function to fetch and display chain links
+// Add this function to fetch and display chain links with checkboxes
 async function fetchAndDisplayChainLinks() {
     try {
         const response = await fetch('/chain-links');
@@ -683,8 +725,8 @@ async function fetchAndDisplayChainLinks() {
                 const listItem = document.createElement('li');
                 listItem.className = 'chain-list-item';
                 
-                // Add chain details
                 listItem.innerHTML = `
+                    <input type="checkbox" class="chain-checkbox" data-id="${chain.id}">
                     <span class="chain-name">${chain.name}</span>
                     <span class="chain-details">
                         <span class="chain-trigger">Trigger: ${chain.trigger}</span>
@@ -692,8 +734,8 @@ async function fetchAndDisplayChainLinks() {
                     </span>
                     <span class="chain-status ${chain.status}">${chain.status}</span>
                     <div class="chain-controls">
-                        <button class="chain-delete-btn" data-id="${chain.id}">Delete</button>
                         <button class="chain-test-btn" data-id="${chain.id}">Test</button>
+                        <button class="chain-delete-btn" data-id="${chain.id}">Delete</button>
                     </div>
                 `;
 
@@ -800,7 +842,6 @@ function hideApiModal() {
     }
 }
 
-
 function validateFormValues() {
     const chainName = document.getElementById('chainLinkName')?.value;
     const apiId = document.getElementById('api-select')?.value;
@@ -821,6 +862,19 @@ function validateFormValues() {
     });
 
     return { chainName, apiId, trigger, action };
+}
+
+/**
+ * Retrieves the IDs of all selected chain links.
+ * Assumes that each chain link has a checkbox with the class 'chain-checkbox'
+ * and a data attribute 'data-id' containing its unique ID.
+ *
+ * @returns {number[]} Array of selected chain IDs
+ */
+function getSelectedChainIds() {
+    const selectedCheckboxes = document.querySelectorAll('.chain-checkbox:checked');
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.getAttribute('data-id')));
+    return selectedIds;
 }
 
 // Cleanup function for removing event listeners
@@ -1020,16 +1074,40 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.addApiEventButton.addEventListener('choose-api-action', handleApiChainEvent);
     }
 
-    const combineChainLinksButton = document.querySelector('.combine-chain-links-btn');
-    if (combineChainLinksButton) {
-        combineChainLinksButton.addEventListener('click', async () => {
-            const selectedChainIds = getSelectedChainIds(); // Assume this function retrieves selected chain IDs
-            if (selectedChainIds.length > 0) {
-                await combineChainLinks(selectedChainIds);
-            } else {
+    // Event listener for the Combine Chains button
+    const combineChainsButton = document.getElementById('combineChainsButton');
+    if (combineChainsButton) {
+        combineChainsButton.addEventListener('click', async () => {
+            const selectedChainIds = getSelectedChainIds();
+            if (selectedChainIds.length < 2) {
                 alert('Please select at least two chain links to combine.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/combine-chains', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ chainIds: selectedChainIds })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Chains combined successfully!');
+                    // Optionally, refresh the chain links list
+                    fetchAndDisplayChainLinks();
+                } else {
+                    alert('Failed to combine chains: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error combining chains:', error);
+                alert('An error occurred while combining chains.');
             }
         });
+    } else {
+        console.error('Combine Chains button not found in the DOM.');
     }
 
     // New chain button 
