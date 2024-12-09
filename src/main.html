@@ -10,9 +10,15 @@
         <header>
         </header>    
         <main class="main-functionality">
+            <div class="chain-logo-container">
+                <!-- <span class="chain-logo-text">chainReact</span> -->
+            </div>
+            <!-- <div class="user-info">
+                <p>Welcome, <span class="username">Username</span></p>
+                <!-- Add any additional user info you want to display -->
+            <!-- </div> -->
+            <!-- <section class="workflow-builder"> -->
 
-            <section class="workflow-builder">
-                <div class="chain-logo-main"></div>
                 <div class="api-integration-container">                
                     <button class="add-api-button">New API</button>  
                                                  
@@ -49,11 +55,10 @@
                             <button type="button" onclick="hideApiModal()">Cancel</button>                     
                         </form>                    
                     </div>                
-                </div>                    
-            </section>     
-
-            <section class="workflow-builder-new">
-
+                </div>       
+            </div>             
+            <!-- </section>      -->
+            <!-- <section class="workflow-builder-new"> -->
                 <div class="chain-links-container">
                     <button class="add-chain-link-btn">New Chain Link</button>
                     <h3>Chain Links</h3>
@@ -65,8 +70,6 @@
                         </li>
                         <!-- Additional chain links will be dynamically inserted here -->
                     </ul>
-
-                
 
                     <div id="chainLinkForm" class="modal" style="display: none;">
                         <div class="modal-content">
@@ -108,7 +111,7 @@
                         </ul>
                     </div>
                 </div>   
-            </section>
+            <!-- </section> -->
         </main>
         <script>console.log('Starting script loading...');</script>
         <script type="text/javascript" src="functionManager.js" onerror="console.error('Failed to load functionManager.js')" onload="console.log('functionManager.js loaded successfully')"></script>

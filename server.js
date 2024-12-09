@@ -7,8 +7,7 @@ const express = require('express');
 const path = require('path');
 const UserModel = require('./src/userModel');
 const bcrypt = require('bcrypt');
-const axios = require('axios'); // Add axios for making API calls
-// const favicon = require('serve-favicon');
+const axios = require('axios'); 
 const app = express();
 app.use(express.json());
 
@@ -17,24 +16,7 @@ const users = [];
 const chainLinks = [];
 const chainReactions = [];
 const apiConnections = [];
-// const apiConnections = [
-    // {
-    //     id: 1,
-    //     name: "OpenWeather API",
-    //     apiUrl: "https://api.openweathermap.org",
-    //     apiKey: process.env.OPENWEATHER_API_KEY || "your-api-key",
-    //     status: "active",
-    //     created: new Date().toISOString()
-    // },
-    // {
-    //     id: 2,
-    //     name: "GitHub API",
-    //     apiUrl: "https://api.github.com",
-    //     apiKey: process.env.GITHUB_API_KEY || "your-api-key",
-    //     status: "active",
-    //     created: new Date().toISOString()
-    // }
-// ];
+
 const cors = require('cors');
 app.use(cors());
 
@@ -106,32 +88,13 @@ async function validateApiConnection(apiUrl, apiKey) {
             'Content-Type': 'application/json'
         };
 
-        // Create an array of possible authentication methods
         const authMethods = [
-            // Bearer token
-            {
-                headers: { 'Authorization': `Bearer ${apiKey}` }
-            },
-            // API key in header
-            {
-                headers: { 'X-API-Key': apiKey }
-            },
-            // Basic auth
-            {
-                headers: { 'Authorization': `Basic ${Buffer.from(apiKey).toString('base64')}` }
-            },
-            // Query parameter
-            {
-                params: { apiKey: apiKey }
-            },
-            // OpenWeatherMap style
-            {
-                params: { appid: apiKey }
-            },
-            // API key in custom header
-            {
-                headers: { 'Api-Key': apiKey }
-            }
+            { headers: { 'Authorization': `Bearer ${apiKey}` } },
+            { headers: { 'X-API-Key': apiKey } },
+            { headers: { 'Authorization': `Basic ${Buffer.from(apiKey).toString('base64')}` } },
+            { params: { apiKey: apiKey } },
+            { params: { appid: apiKey } },
+            { headers: { 'Api-Key': apiKey } }
         ];
 
         let successfulResponse = null;
@@ -333,7 +296,7 @@ app.post('/login', async (req, res) => {
 
 // Endpoint to handle API connections
 app.post('/connect-api', async (req, res) => {
-    const { apiUrl, apiKey, apiName, webhookUrl } = req.body;
+    const { apiName, apiUrl, apiKey, webhookUrl } = req.body;
 
     if (!apiUrl || !apiKey || !apiName) {
         return res.json({ 
@@ -343,47 +306,33 @@ app.post('/connect-api', async (req, res) => {
     }
 
     try {
-        // Test the API connection and fetch events/actions
-        const connectionTest = await validateApiConnection(apiUrl, apiKey);
-        
-        if (!connectionTest.success) {
-            return res.json({ 
-                success: false, 
-                message: 'Failed to connect to API: ' + connectionTest.error 
-            });
-        }
+        // Validate the API connection
+        const validationResult = await validateApiConnection(apiUrl, apiKey);
+        const isActive = validationResult.success;
 
-        // Store API connection details with fetched events and actions
         const newConnection = {
             id: apiConnections.length + 1,
-            name: apiName,
-            apiUrl: apiUrl, // Renamed from 'url' to 'apiUrl'
+            name: apiName || 'Unnamed API',
+            apiUrl,
             key: apiKey,
-            webhookUrl: webhookUrl,
-            status: 'active',
-            availableEvents: connectionTest.events || [],
-            availableActions: connectionTest.actions || []
+            webhookUrl: webhookUrl || '',
+            status: isActive ? 'active' : 'inactive', // Set status based on validation
+            availableEvents: validationResult.events || [],
+            availableActions: validationResult.actions || []
         };
 
-        console.log('New API connection added:', newConnection); // Log the new connection
         apiConnections.push(newConnection);
-        console.log('Updated API connections list:', apiConnections); // Log the updated list
 
-        res.json({
-            success: true,
-            message: 'API connected successfully!',
-            connections: apiConnections.map(({ id, name, status }) => ({
-                id, name, status
-            }))
-        });
+        console.log('New API connection added:', newConnection);
+        console.log('Updated API connections list:', apiConnections);
+
+        res.json({ success: true, connection: newConnection });
     } catch (error) {
-        console.error('Error connecting to API:', error);
-        res.json({ 
-            success: false, 
-            message: 'Failed to connect to API: ' + error.message 
-        });
+        console.error('Error connecting API:', error);
+        res.json({ success: false, message: error.message });
     }
 });
+
 
 
 
@@ -432,18 +381,14 @@ app.get('/api-events-actions/:apiId', validateApiId, (req, res) => {
 app.get('/api-connections', (req, res) => {
     try {
         console.log('Fetching API connections, current count:', apiConnections.length);
-        
-        // Add data validation and mapping
-        const validConnections = apiConnections
-            .filter(conn => conn && conn.id && conn.apiUrl) // Filter out invalid entries
-            .map(conn => ({
-                id: conn.id,
-                name: conn.name || 'Unnamed API',
-                apiUrl: conn.apiUrl,
-                status: conn.status || 'unknown',
-                created: conn.created,
-                // Exclude sensitive data like apiKey
-            }));
+
+        const validConnections = apiConnections.map(conn => ({
+            id: conn.id,
+            name: conn.name || 'Unnamed API',
+            apiUrl: conn.apiUrl,             // Ensure apiUrl is included
+            status: conn.status || 'unknown', // Include the status field
+            created: conn.created
+        }));
 
         console.log('Sending valid API connections:', {
             total: apiConnections.length,

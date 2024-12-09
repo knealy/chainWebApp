@@ -33,6 +33,7 @@ async function makeRequest(url, data) {
         throw error;
     }
 }
+
 async function fetchAndDisplayApis() {
     try {
         const response = await fetch('/api-connections');
@@ -66,9 +67,9 @@ async function fetchAndDisplayApis() {
                             <span class="api-url" 
                                 title="Full URL: ${connection.apiUrl}">URL: ${shortenedUrl}</span>
                         </span>
-                        <span class="api-status ${connection.active ? 'active' : 'inactive'}"
-                            title="${connection.active ? 'API is currently active' : 'API is currently inactive'}">
-                            ${connection.active ? 'Active' : 'Inactive'}
+                        <span class="api-status ${connection.status === 'active' ? 'active' : 'inactive'}"
+                            title="${connection.status === 'active' ? 'API is currently active' : 'API is currently inactive'}">
+                            ${connection.status === 'active' ? 'Active' : 'Inactive'}
                         </span>
                         <div class="api-controls">
                             <button class="api-test-btn" 
@@ -265,6 +266,8 @@ async function handleApiFormSubmit(event) {
         if (response.success) {
             alert('API connected successfully!');
             await fetchAndDisplayApis();
+            await updateApiDropdown();
+
             if (apiModal) {
                 apiModal.style.display = 'none';
                 document.body.classList.remove('modal-open');
@@ -450,8 +453,22 @@ async function handleNewApiConnection(event) {
     }
 }
 
+// Add this function to show loading state
+function setDropdownLoading(selectElement, isLoading) {
+    if (!selectElement) return;
+    
+    selectElement.disabled = isLoading;
+    if (isLoading) {
+        selectElement.innerHTML = '<option value="">Loading...</option>';
+    }
+}
+
 // Function to update API dropdown with available connections
 async function updateApiDropdown() {
+    const apiSelect = document.getElementById('api-select');
+    if (!apiSelect) return;
+
+    setDropdownLoading(apiSelect, true);
     try {
         const response = await fetch('/api-connections');
         const data = await response.json();
@@ -463,14 +480,35 @@ async function updateApiDropdown() {
         
         if (data.success && data.connections) {
             data.connections.forEach(connection => {
-                const option = document.createElement('option');
-                option.value = connection.id;
-                option.textContent = connection.name;
-                apiSelect.appendChild(option);
+                if (connection.status === 'active') {  // Only add active APIs
+                    const option = document.createElement('option');
+                    option.value = connection.id;
+                    option.textContent = connection.name;
+                    apiSelect.appendChild(option);
+                }
             });
+
+            // Enable/disable the select based on whether there are any options
+            const hasOptions = apiSelect.options.length > 1;
+            apiSelect.disabled = !hasOptions;
+            
+            // Update dependent dropdowns
+            if (hasOptions) {
+                const eventSelect = document.getElementById('event-select');
+                const actionSelect = document.getElementById('action-select');
+                if (eventSelect) eventSelect.disabled = true;
+                if (actionSelect) actionSelect.disabled = true;
+            }
+            console.log('API dropdown updated successfully');
+        } else {
+            console.warn('No active APIs available for dropdown');
         }
     } catch (error) {
         console.error('Error updating API dropdown:', error);
+        apiSelect.innerHTML = '<option value="">Error loading APIs</option>';
+        // apiSelect.disabled = true;
+    } finally {
+        setDropdownLoading(apiSelect, false);
     }
 }
 
@@ -823,6 +861,7 @@ function showChainLinkForm() {
     if (chainLinkForm) {
         chainLinkForm.style.display = 'block';
         document.body.classList.add('modal-open');
+        updateApiDropdown();
     }
 }
 
@@ -901,6 +940,27 @@ function generateUniqueId(name, url) {
     return `${name}_${url}`.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
+// Function to update the username display
+function updateUsernameDisplay(username) {
+    const usernameElement = document.querySelector('.username');
+    if (usernameElement) {
+        usernameElement.textContent = username || 'Guest';
+    }
+}
+
+// Function to get the current user's info
+async function getCurrentUser() {
+    try {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        updateUsernameDisplay(userData?.username);
+        return userData;
+    } catch (error) {
+        console.error('Error getting user data:', error);
+        updateUsernameDisplay(null);
+        return null;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('functionManager availability:', window.functionManager);
 
@@ -933,6 +993,15 @@ document.addEventListener('DOMContentLoaded', () => {
         password: document.getElementById('password'),    
         addChainLinkBtn : document.querySelector('.add-chain-link-btn'),
         chainLinkForm : document.getElementById('new-chain-link-form'),
+        chainLogoContainer : document.querySelector('.chain-logo-container'),
+        userInfo : document.querySelector('.user-info'),
+        userInfoUsername : document.querySelector('.username'),
+        userInfoLogout : document.querySelector('.logout-button'),
+        userInfoRegister : document.querySelector('.register-button'),
+        userInfoLogin : document.querySelector('.login-button'),    
+        userInfoLogout : document.querySelector('.logout-button'),
+        userInfoProfile : document.querySelector('.profile-button'),
+        combinedChainsButton : document.querySelector('.combineChainsButton')
     };
 
     // Debug log all found elements
@@ -964,9 +1033,16 @@ document.addEventListener('DOMContentLoaded', () => {
         password: !!elements.password,
         addChainLinkBtn : !!elements.addChainLinkBtn,
         chainLinkForm : !!elements.newChainLinkForm,
+        chainLogoContainer : !!elements.chainLogoContainer,
+        userInfo : !!elements.userInfo,
+        userInfoUsername : !!elements.userInfoUsername,
+        userInfoLogout : !!elements.userInfoLogout,
+        userInfoRegister : !!elements.userInfoRegister,
+        userInfoLogin : !!elements.userInfoLogin,
+        combinedChainsButton : !!elements.combinedChainsButton
     });
 
-    // Check if functionManager is available    
+    // Check if functionManager is available    s
     if (!window.functionManager) {
         console.error('functionManager not loaded!');
     } else {
@@ -983,6 +1059,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (elements.registrationForm) {
         elements.registrationForm.addEventListener('submit', handleRegistration);
+    }
+
+    if (elements.userInfo) {
+        elements.userInfo.addEventListener('click', function() {
+            elements.userInfo.classList.toggle('open');
+        });
+    }
+
+    if (elements.userInfoLogout) {
+        elements.userInfoLogout.addEventListener('click', function() {
+            localStorage.removeItem('userData');
+            window.location.reload();
+        });
+    }   
+
+    if (elements.userInfoRegister) {
+        elements.userInfoRegister.addEventListener('click', function() {
+            elements.userInfoRegister.classList.toggle('open');
+        });
+    }   
+
+    if (elements.userInfoLogin) {
+        elements.userInfoLogin.addEventListener('click', function() {
+            elements.userInfoLogin.classList.toggle('open');
+        });
+    }   
+
+    if (elements.userInfoProfile) {
+        elements.userInfoProfile.addEventListener('click', function() {
+            elements.userInfoProfile.classList.toggle('open');
+        });
+    }   
+
+    if (elements.usernameElement) {
+        elements.usernameElement.addEventListener('click', function() {
+            elements.usernameElement.classList.toggle('open');
+        });
+    }
+
+
+    
+    if (elements.chainLogoContainer) {
+        elements.chainLogoContainer.addEventListener('click', function() {
+            this.classList.add('spinning');
+             // Remove the class when animation ends to allow it to be triggered again
+            this.addEventListener('animationend', function() {
+                this.classList.remove('spinning');
+            }, {once: true});
+        });
     }
 
     // Add API button
@@ -1074,10 +1199,8 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.addApiEventButton.addEventListener('choose-api-action', handleApiChainEvent);
     }
 
-    // Event listener for the Combine Chains button
-    const combineChainsButton = document.getElementById('combineChainsButton');
-    if (combineChainsButton) {
-        combineChainsButton.addEventListener('click', async () => {
+    if (elements.combinedChainsButton) {
+        elements.combinedChainsButton.addEventListener('click', async () => {
             const selectedChainIds = getSelectedChainIds();
             if (selectedChainIds.length < 2) {
                 alert('Please select at least two chain links to combine.');
@@ -1161,3 +1284,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add cleanup to window unload event
     window.addEventListener('unload', cleanup);
 });
+
+// Example login handler
+function handleLogin(userData) {
+    localStorage.setItem('userData', JSON.stringify(userData));
+    handleLoginStateChange(userData);
+}
