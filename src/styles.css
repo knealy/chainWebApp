@@ -83,19 +83,6 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
     }
 
-    /* Disable animations when a modal is open */
-    body.modal-open .main-functionality:hover,
-    body.modal-open .api-integration-container:hover,
-    body.modal-open .chain-links-container:hover,
-    body.modal-open .chain-list-item:hover,
-    body.modal-open .logo-container-chainLinks:hover,
-    body.modal-open .logo-container-connectedApis:hover {
-        transform: none !important;
-        box-shadow: none !important;
-        animation: none !important;
-    }
-    
-
     .modal {
         display: none;
         position: fixed;
@@ -105,7 +92,8 @@
         height: 100%;
         background: rgba(0, 0, 0, 0.7);
         z-index: 1000;
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(3px); /* Reduced blur for better performance */
+        transition: backdrop-filter 0.15s ease; /* Smooth blur transition */
     }
     
     .modal-content {
@@ -116,10 +104,21 @@
         width: 90%;
         margin: 2rem auto;
         position: relative;
-        animation: fadeIn 0.3s ease-out;
         border: 2px solid var(--border-color);
+        animation: modalFadeIn 0.15s ease-out; /* Faster, more focused animation */
     }
     
+    /* New optimized modal animation */
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px); /* Reduced distance for snappier feel */
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
     /* Update the logo containers to ensure they stay in place */
     .logo-container-connectedApis {
         position: fixed;
@@ -128,9 +127,9 @@
         width: 120px;
         height: 120px;
         opacity: 0.95;
-        z-index: 1000; /* Increase z-index to ensure it stays above other elements */
+        z-index: 1000; 
         animation: rotateLogo 20s linear infinite;
-        pointer-events: none; /* This prevents the logo from intercepting hover events */
+        pointer-events: none; 
     }
     .logo-container-connectedApis img {
         width: 100%;
@@ -724,10 +723,10 @@
 
 
     /* Disable animations when modal is open */
-    body.modal-open .combined-chains-container:hover {
+    /* body.modal-open .combined-chains-container:hover {
         transform: none;
         box-shadow: none;
-    }
+    } */
 
     .combined-chains-list {
         width: 100%;
